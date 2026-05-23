@@ -40,3 +40,4 @@ Thumbs.db
 
 # ── Test files ────────────────────────────────────────────────────────────────
 backend/test_pipeline.py
+backend/test_gemini.py
