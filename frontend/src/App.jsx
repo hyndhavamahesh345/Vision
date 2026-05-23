@@ -1,9 +1,5 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react'
 import axios from 'axios'
-
-// In production (Vercel), VITE_API_URL points to the Render backend
-// In local dev, empty string uses Vite proxy → localhost:8000
-const API = typeof __API_BASE__ !== 'undefined' ? __API_BASE__ : ''
 import {
   Home,
   Sparkles,
@@ -247,7 +243,7 @@ export default function App() {
     setStatusMsg('Uploading video buffer...')
 
     try {
-      const res = await axios.post(`${API}/api/upload`, formData)
+      const res = await axios.post('/api/upload', formData)
       // Upload done — backend now processing in background
       setActiveStep(2)
       setStatusMsg('Extracting high-resolution frames...')
@@ -263,7 +259,7 @@ export default function App() {
     let retryCount = 0
     const interval = setInterval(async () => {
       try {
-        const res = await axios.get(`${API}/api/status/${jobId}`)
+        const res = await axios.get(`/api/status/${jobId}`)
         retryCount = 0  // reset on success
         const d = res.data
 
@@ -272,7 +268,7 @@ export default function App() {
           setProgress(100)
           setActiveStep(4)
           setStatusMsg('Analysis complete!')
-          const inv = await axios.get(`${API}/api/inventory/${jobId}`)
+          const inv = await axios.get(`/api/inventory/${jobId}`)
           setInventory(inv.data)
           setIsProcessing(false)
 
