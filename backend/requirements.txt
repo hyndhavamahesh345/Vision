@@ -1,0 +1,22 @@
+# Core API
+fastapi==0.109.0
+uvicorn==0.27.1
+python-multipart==0.0.9
+python-dotenv==1.0.0
+httpx==0.26.0
+aiofiles==23.2.1
+
+# Computer Vision
+opencv-python
+numpy
+pillow
+
+# YOLO object detection
+ultralytics>=8.3.0
+
+# Florence-2 open-vocabulary vision model
+transformers>=4.40.0
+torch>=2.0.0
+torchvision>=0.15.0
+timm>=0.9.0
+einops>=0.7.0
