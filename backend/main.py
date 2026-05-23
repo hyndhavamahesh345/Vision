@@ -8,7 +8,6 @@ from pathlib import Path
 from typing import Dict, List, Any, Tuple
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import cv2
 import httpx
@@ -340,8 +339,6 @@ async def health():
         "use_florence": USE_FLORENCE,
     }
 
-
-app.mount("/", StaticFiles(directory="../frontend/dist", html=True), name="frontend")
 
 if __name__ == "__main__":
     import uvicorn
