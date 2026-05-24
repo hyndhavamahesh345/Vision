@@ -320,10 +320,12 @@ async def health():
         active_pipeline = "gemini"
     elif USE_HYBRID:
         parts = []
-        if yolo_ready:      parts.append("yolo")
-        if florence_ready:  parts.append("florence-2")
-        elif ollama_ready:  parts.append("llava")
-        active_pipeline = " + ".join(parts) if parts else "simulated"
+        if yolo_ready: parts.append("yolo")
+        if USE_FLORENCE and florence_ready and MAX_FLORENCE_CALLS > 0:
+            parts.append("florence-2")
+        elif ollama_ready and MAX_LLAVA_CALLS > 0:
+            parts.append("llava")
+        active_pipeline = " + ".join(parts) if parts else "yolo-only"
     else:
         active_pipeline = "simulated"
 
@@ -446,11 +448,22 @@ def extract_frames(job_id: str, video_path: str) -> List[str]:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def run_gemini_pipeline(job_id: str, frames: List[str]) -> List[str]:
+    """Run Gemini Vision on all frames in parallel for speed."""
     all_detections: List[str] = []
-    for i, frame_path in enumerate(frames):
+
+    def gemini_worker(args):
+        i, frame_path = args
         detections = analyze_frame_with_gemini(frame_path)
-        all_detections.extend(detections)
         processing_jobs[job_id]["frames_analyzed"] = i + 1
+        return detections
+
+    from concurrent.futures import ThreadPoolExecutor
+    with ThreadPoolExecutor(max_workers=5) as pool:
+        results = list(pool.map(gemini_worker, enumerate(frames)))
+
+    for detections in results:
+        all_detections.extend(detections)
+
     return all_detections
 
 
@@ -463,11 +476,15 @@ def analyze_frame_with_gemini(frame_path: str) -> List[str]:
             b64 = base64.b64encode(f.read()).decode("utf-8")
 
         prompt = (
-            "You are analyzing a frame from a property walkthrough video.\n"
-            "List ALL household objects, furniture, and appliances visible.\n"
-            "Respond with ONLY a JSON array of lowercase object names.\n"
-            'Example: ["sofa", "chair", "table", "tv", "lamp"]\n'
-            "If nothing visible, return: []"
+            "You are analyzing a frame from a property walkthrough video for inventory purposes.\n"
+            "List EVERY visible household object, furniture piece, appliance, and fixture.\n"
+            "Include: sofa, chair, table, bed, wardrobe, tv, refrigerator, microwave, oven, "
+            "sink, toilet, shower, bathtub, lamp, light, fan, air conditioner, curtain, rug, "
+            "mirror, shelf, bookcase, plant, clock, door, window, painting, cushion, blanket, "
+            "fireplace, staircase, and anything else you can see.\n"
+            "Respond with ONLY a JSON array of lowercase object names. No explanation.\n"
+            'Example: ["sofa", "chair", "table", "tv", "lamp", "curtain", "rug"]\n'
+            "Return [] if nothing visible."
         )
         url = (
             f"https://generativelanguage.googleapis.com/v1/models/"
@@ -491,6 +508,7 @@ def analyze_frame_with_gemini(frame_path: str) -> List[str]:
                            .get("content", {})
                            .get("parts", [{}])[0]
                            .get("text", ""))
+        print(f"[Gemini] frame_{frame_idx}: {text[:150]}")
         return parse_text_response(text)
 
     except Exception as e:
