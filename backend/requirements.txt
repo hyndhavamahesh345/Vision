@@ -14,9 +14,15 @@ pillow
 # YOLO object detection
 ultralytics>=8.3.0
 
-# Florence-2 open-vocabulary vision model
-transformers>=4.40.0
+# OpenCLIP secondary image classifier
 torch>=2.0.0
 torchvision>=0.15.0
-timm>=0.9.0
-einops>=0.7.0
+open_clip_torch>=2.20.0
+
+# Infrastructure & Production Queue
+celery==5.3.6
+redis==5.0.1
+sqlalchemy==2.0.25
+psycopg2-binary==2.9.9
+minio==7.2.4
+lapx>=0.5.5

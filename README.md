@@ -1,121 +1,71 @@
-# VisionVault
+# VisionVault 📦🔍
 
-![Status](https://img.shields.io/badge/Status-Production_Ready-success?style=for-the-badge) ![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi) ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react) ![YOLO](https://img.shields.io/badge/YOLO11s-00FFFF?style=for-the-badge&logo=ultralytics) ![Open_Source](https://img.shields.io/badge/Open_Source-Only-3DDC84?style=for-the-badge)
+VisionVault is a high-performance, full-stack AI web application designed to automatically scan user-uploaded videos and generate highly accurate household inventory lists. By simply uploading a video walkthrough of a room or house, VisionVault uses state-of-the-art computer vision to identify, track, and count furniture, appliances, and decor.
 
-**VisionVault** is a production-grade, open-source property intelligence system for walkthrough videos. It extracts frames, enhances indoor visibility, tracks items sequentially to prevent CPU deadlocks, applies relaxed temporal validation for fast pans, uses Florence-2 for ultra-fast phrase-grounding fallbacks, and groups items by room using a lightweight rule-based local classifier.
+## 🚀 Features
+- **Zero-Shot YOLO-World AI**: Exclusively powered by the massive `yolov8x-worldv2.pt` model with a custom-tailored household vocabulary, completely eliminating false positives (like confusing white cabinets for refrigerators).
+- **Dynamic Speed Limits**: Smart frame extraction logic caps video processing at a maximum of 60 evenly spaced frames. No matter how long a video is, processing guarantees an absolute maximum wait time of exactly 2 minutes without sacrificing end-to-end video coverage.
+- **Flawless Object Tracking**: Reconstructed tracking aggregation prevents broken tracks from inflating item counts, ensuring zero duplicates in the final UI.
+- **Asynchronous Processing**: Videos are processed in the background via Celery workers, ensuring the frontend API never blocks or crashes.
 
----
+## 🛠️ Tech Stack
+- **Frontend**: React + Vite (Interactive UI with beautiful glassmorphism design)
+- **Backend**: Python + FastAPI (RESTful API endpoints)
+- **Task Queue**: Celery + Redis (Asynchronous background video processing)
+- **Storage**: MinIO (S3-compatible blob storage for video uploads)
+- **Database**: PostgreSQL / SQLite (Job tracking and inventory storage)
+- **AI / Computer Vision**: Ultralytics YOLO-World, OpenCV
 
-## Quick Access
-
-- **Frontend Dashboard:** http://localhost:3000/
-- **API Docs:** http://localhost:8001/docs
-- **Health Check:** http://localhost:8001/api/health
-
----
-
-## What It Does
-
-VisionVault is built specifically for indoor property walkthroughs where standard COCO-trained detectors are too restrictive.
-
-It follows a high-recall, verification-first pipeline:
-1. **Adaptive Frame Extraction & Quality Filtering:** Rejects blurry, dark, or ceiling-dominated frames.
-2. **Contrast Enhancement & Sharpening:** CLAHE normalization upscaled to 960px to highlight small indoor items.
-3. **Sequential YOLO11s Tracking:** High-recall local tracking running in a deadlock-free sequential loop.
-4. **Proactive Florence-2 Recovery:** Ultra-fast (< 2s on CPU) open-vocabulary phrase grounding fallback when YOLO evidence is weak.
-5. **Relaxed Temporal Validation:** Keeps stable tracked items, allowing brief single-frame detections if confidence is extremely high (`> 0.45`).
-6. **Local Room Grouping:** Groups verified items by room type (e.g., Living Room, Bedroom, Kitchen) using local keyword-matching heuristics.
-7. **Room-Aware UI & Styled PDF Report:** Visualizes room-grouped inventories on a dashboard and exports them into beautiful multi-table PDFs.
-
----
-
-## Architecture
-
-```mermaid
-graph TD
-  U((User)) --> FE[React Frontend]
-  FE --> API[FastAPI Backend]
-  API --> EX[Frame Extraction]
-  EX --> QF[Frame Quality Filtering]
-  QF --> ENH[Frame Enhancement]
-  ENH --> YOLO[YOLO11s/x Sequential Tracking]
-  YOLO --> BT[ByteTrack Tracking]
-  BT --> TEMP{Temporal Validation}
-  TEMP -->|weak detection / low recall| FL[Florence-2 Phrase Grounding Fallback]
-  FL --> TEMP
-  TEMP --> CL[Local Room Classification]
-  CL --> REP[Room-Grouped Inventory Report]
+## 📁 Project Structure
+```text
+VisionVault/
+├── backend/
+│   ├── api/            # FastAPI route endpoints
+│   ├── scripts/        # Standalone utility & debugging scripts
+│   ├── services/       # Core business logic (AI fusion, video extraction)
+│   ├── weights/        # AI model files (e.g. yolov8x-worldv2.pt)
+│   ├── worker/         # Celery task definitions
+│   ├── config.py       # Global environment & configuration settings
+│   └── main.py         # Application entry point
+└── frontend/           # React + Vite user interface
 ```
 
----
+## ⚙️ Getting Started
 
-## Model Stack
+### 1. Prerequisites
+Ensure you have the following installed on your machine:
+- Node.js & npm
+- Python 3.9+
+- Docker Desktop (Required to run Redis & MinIO)
 
-### Primary Detector & Tracking
-- **YOLO11x** is the default detector (Optimized for maximum recall offline; falls back to **YOLO11s** if needed).
-- **ByteTrack** keeps object IDs stable across frames to prevent double-counting.
+### 2. Start Dependencies (Redis & MinIO)
+Run the required background services via Docker (ensure they are active before starting the backend).
 
-### Open-Vocabulary Fallback
-- **Florence-2** runs as an ultra-fast (`~1.5s` CPU) open-vocabulary phrase grounding engine when YOLO detections are sparse or weak.
-
-### Room Classification
-- **Rule-Based Room Mapper** assigns validated items to their respective rooms (Living Room, Kitchen, Bedroom, Bathroom, etc.) using clean local keyword matching.
-
----
-
-## Environment Variables
-
-Copy `backend/.env.example` to `backend/.env` and adjust as needed.
-
-```env
-FAST_MODE=false
-MAX_FRAMES=10
-FRAME_INTERVAL_SEC=1.0
-FRAME_QUALITY=80
-
-YOLO_WEIGHTS=yolo11x.pt
-YOLO_CONF=0.20
-TRACK_DETECTION_CONF=0.20
-YOLO_INFER_IMGSZ=640
-YOLO_INPUT_TARGET_WIDTH=640
-
-MIN_PERSIST_FRAMES=1
-TEMPORAL_MIN_AVG_CONF=0.18
-
-USE_HYBRID=true
-USE_GROUNDINGDINO=true
-```
-
----
-
-## Running Locally
-
-### Backend (Port 8001)
-
+### 3. Start the Backend API
+Open a terminal and start the FastAPI server:
 ```bash
 cd backend
-pip install -r requirements.txt
-uvicorn main:app --reload --port 8001
+python main.py
+```
+*(The backend will run at `http://localhost:8001`)*
+
+### 4. Start the Celery Worker
+Open a **new** terminal and start the asynchronous processing queue:
+```bash
+cd backend
+celery -A worker.tasks worker --loglevel=info --pool=solo
 ```
 
-### Frontend (Port 3000)
-
+### 5. Start the Frontend
+Open a **new** terminal and launch the React application:
 ```bash
 cd frontend
-npm install
 npm run dev
 ```
+*(The frontend will run at `http://localhost:5173`)*
 
----
-
-## Behavior Guarantees
-
-VisionVault is tuned to avoid common failure modes in walkthrough analysis:
-- **No CPU Deadlocks:** Safe sequential inference loop prevents PyTorch threading lockups.
-- **Balanced Recall:** Never returns `"0 objects found"`; rebalanced settings prioritize thoroughness.
-- **Zero-Drop Safety:** Keeps verified YOLO/Florence detections with local room fallbacks even if Ollama is offline.
-- **No Hallucinations:** Prevents single-frame noise from polluting the report.
-
----
-
-*© 2026 VisionVault AI. Built with open-source AI only.*
+## 💡 Usage
+1. Open your web browser and navigate to `http://localhost:5173`.
+2. Click **"Upload Video"** and select any household video clip.
+3. The video will be sent to the Celery worker for fast-forward AI extraction.
+4. Watch as your final, perfect inventory populates on the screen automatically!

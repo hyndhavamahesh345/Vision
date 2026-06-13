@@ -23,7 +23,7 @@ echo ========================================
 echo.
 echo Next steps:
 echo 1. Add your Gemini API key to backend/.env
-echo 2. Start backend: cd backend && uvicorn main:app --reload
+echo 2. Start backend: cd backend && uvicorn main:app --reload --port 8001
 echo 3. Start frontend: cd frontend && npm run dev
 echo 4. Open http://localhost:3000
 echo.

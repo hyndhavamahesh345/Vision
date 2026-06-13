@@ -27,6 +27,9 @@ huggingface/
 backend/uploads/
 backend/frames/
 backend/output/
+backend/dataset/
+backend/runs/
+backend/static/previews/
 
 # ── Frontend build output ─────────────────────────────────────────────────────
 frontend/dist/

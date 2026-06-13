@@ -35,6 +35,8 @@ import {
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8001'
+
 const CATEGORIES = [
   'All',
   'Furniture',
@@ -838,7 +840,7 @@ export default function App() {
     try {
       const form = new FormData()
       form.append('file', file)
-      const res = await axios.post('/api/upload', form)
+      const res = await axios.post(`${API_BASE_URL}/api/upload`, form)
       setActiveStep(2)
       setStatusMsg('Extracting frames...')
       setProgress(15)
@@ -853,7 +855,7 @@ export default function App() {
     let retries = 0
     const iv = setInterval(async () => {
       try {
-        const { data: d } = await axios.get(`/api/status/${jobId}`)
+        const { data: d } = await axios.get(`${API_BASE_URL}/api/status/${jobId}`)
         retries = 0
 
         if (d.status === 'completed') {
@@ -861,7 +863,7 @@ export default function App() {
           setProgress(100)
           setActiveStep(4)
           setStatusMsg('Analysis complete!')
-          const inv = await axios.get(`/api/inventory/${jobId}`)
+          const inv = await axios.get(`${API_BASE_URL}/api/inventory/${jobId}`)
           setInventory(inv.data)
           setIsProcessing(false)
         } else if (d.status === 'error') {
