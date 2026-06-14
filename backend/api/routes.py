@@ -77,4 +77,17 @@ async def get_inventory(job_id: str, db: Session = Depends(get_db)):
     items = db.query(Inventory).filter(Inventory.job_id == job_id).all()
     inventory_list = [{"name": item.object, "quantity": item.count, "room": item.room} for item in items]
     
-    return {"job_id": job_id, "inventory": inventory_list}
+    # Check for annotated frames in the static directory
+    from config import ANNOTATED_DIR
+    annotated_frames = []
+    if ANNOTATED_DIR.exists():
+        # Match files like {job_id}_0.jpg
+        for file in sorted(ANNOTATED_DIR.glob(f"{job_id}_*.jpg")):
+            # Build the URL path
+            annotated_frames.append(f"/static/annotated/{file.name}")
+    
+    return {
+        "job_id": job_id, 
+        "inventory": inventory_list,
+        "annotated_frames": annotated_frames
+    }

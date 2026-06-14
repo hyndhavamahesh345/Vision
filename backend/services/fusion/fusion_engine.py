@@ -36,48 +36,35 @@ def run_hybrid_pipeline(job_id: str, video_path: str, frames: List[str]) -> Tupl
 
     # If the highly accurate YOLO-World household model is available, use ONLY it to prevent base model noise
     if yolo_household:
-        tracked_sequence = run_household_yolo(yolo_household, filtered_frames)
-        sub = "yolov8x-worldv2 exclusively"
+        from services.detection.florence import generate_dynamic_vocabulary
+        from services.inventory.builder import HOUSEHOLD_OBJECTS
+        
+        # 1. Ask Florence-2 to analyze the first frame and generate custom vocabulary
+        logger.info("[Fusion] Requesting dynamic vocabulary from Florence-2 for the first frame...")
+        dynamic_words = generate_dynamic_vocabulary(filtered_frames[0])
+        
+        # 2. Combine our standard household objects with the dynamically discovered ones
+        combined_classes = list(set(HOUSEHOLD_OBJECTS + ["side profile air conditioner", "furniture"] + dynamic_words))
+        
+        # 3. Inject the combined vocabulary into YOLO-World's brain
+        logger.info("[Fusion] Updating YOLO-World vocabulary with %d total classes", len(combined_classes))
+        yolo_household.set_classes(combined_classes)
+        
+        # 4. Run the high-speed YOLO-World detector on all frames
+        tracked_sequence = run_household_yolo(yolo_household, filtered_frames, job_id=job_id)
+        sub = "florence2 + yolov8x-worldv2"
     else:
         # Fallback to base yolo
-        tracked_sequence = run_bytetrack(yolo, filtered_frames)
+        tracked_sequence = run_bytetrack(yolo, filtered_frames, job_id=job_id)
         sub = "yolo11s + bytetrack"
 
     # Compile tracks and filter out transients
-    track_history: Dict[int, Dict[str, Any]] = {}
+    # Since we use agnostic_nms to prevent spatial duplicates, and max_counts to prevent temporal duplicates,
+    # we can bypass strict temporal persistence filtering to ensure all objects are returned.
     
+    final_frames: List[List[str]] = [[] for _ in frames]
     for frame_idx, frame_tracks in enumerate(tracked_sequence):
         for track_id, info in frame_tracks.items():
-            if track_id not in track_history:
-                track_history[track_id] = {
-                    "label": info["label"],
-                    "frames_seen": set(),
-                    "confs": [],
-                    "best_conf": 0.0
-                }
-            
-            state = track_history[track_id]
-            state["frames_seen"].add(frame_idx)
-            state["confs"].append(info["conf"])
-            if info["conf"] > state["best_conf"]:
-                state["best_conf"] = info["conf"]
-
-    accepted_track_ids: Set[int] = set()
-    for track_id, state in track_history.items():
-        frames_seen = len(state["frames_seen"])
-        avg_conf = sum(state["confs"]) / max(1, len(state["confs"]))
-        best_conf = state["best_conf"]
-        
-        # Keep tracks that persist across multiple frames, or very high confidence single detections
-        # Using best_conf instead of avg_conf prevents blurry frames from lowering the average and dropping the track
-        if (frames_seen >= MIN_PERSIST_FRAMES or (frames_seen >= 1 and best_conf > 0.45)) and best_conf >= TEMPORAL_MIN_AVG_CONF:
-            accepted_track_ids.add(track_id)
-
-    # Generate final detections format for compatibility
-    final_frames: List[List[str]] = [[] for _ in frames]
-    for track_id, state in track_history.items():
-        if track_id in accepted_track_ids:
-            for frame_idx in state["frames_seen"]:
-                final_frames[frame_idx].append(state["label"])
+            final_frames[frame_idx].append(info["label"])
 
     return sub, final_frames

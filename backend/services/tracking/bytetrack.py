@@ -1,8 +1,9 @@
 from typing import List, Dict, Any
 from config import YOLO_CONF_THRESHOLD, YOLO_INFER_IMGSZ, logger
 from services.inventory.builder import normalize_object_name
+from db.postgres import SessionLocal, Job
 
-def run_bytetrack(model, frames: List[str]) -> List[Dict[int, Dict[str, Any]]]:
+def run_bytetrack(model, frames: List[str], job_id: str = None) -> List[Dict[int, Dict[str, Any]]]:
     """
     Runs YOLOv11 inference with ByteTrack tracking enabled across a sequence of frames.
     Returns a list (one per frame) of active tracks.
@@ -14,17 +15,22 @@ def run_bytetrack(model, frames: List[str]) -> List[Dict[int, Dict[str, Any]]]:
     tracked_sequence: List[Dict[int, Dict[str, Any]]] = []
     
     try:
-        # Use predict instead of track to bypass the tracker's hardcoded confidence thresholds
-        # This is critical for blurry WhatsApp videos where confidence might be 15-20%
-        results = model.predict(
+        # Use track instead of predict for authentic temporal tracking across frames
+        # persist=True ensures track IDs are maintained across the sequence
+        # agnostic_nms=True with iou=0.45 guarantees that overlapping boxes (like 'chair' and 'furniture' on the same object) are merged.
+        results = model.track(
             source=frames,
             conf=YOLO_CONF_THRESHOLD,
+            iou=0.45,
+            agnostic_nms=True,
             imgsz=YOLO_INFER_IMGSZ,
+            persist=True,
+            tracker="bytetrack.yaml",
             verbose=False,
             stream=True
         )
         
-        for result in results:
+        for idx, result in enumerate(results):
             frame_tracks = {}
             boxes = getattr(result, "boxes", None)
             
@@ -33,19 +39,23 @@ def run_bytetrack(model, frames: List[str]) -> List[Dict[int, Dict[str, Any]]]:
                 confs = boxes.conf.tolist()
                 xyxys = boxes.xyxy.tolist()
                 
-                counts = {}
+                # Real tracking IDs provided by ByteTrack
+                if boxes.id is not None:
+                    track_ids = boxes.id.int().tolist()
+                else:
+                    # Fallback if tracker drops (rare)
+                    track_ids = [hash(f"{c}_{i}") % 100000 for i, c in enumerate(cls_ids)]
+                
                 for det_idx in range(len(cls_ids)):
                     cls_id = cls_ids[det_idx]
                     conf = float(confs[det_idx])
                     bbox = xyxys[det_idx]
+                    track_id = track_ids[det_idx]
                     
                     if isinstance(result.names, dict):
                         raw_name = str(result.names.get(int(cls_id), str(cls_id))).lower()
                     else:
                         raw_name = str(result.names[int(cls_id)]).lower() if 0 <= int(cls_id) < len(result.names) else str(cls_id).lower()
-
-                    counts[raw_name] = counts.get(raw_name, 0) + 1
-                    track_id = hash(f"{raw_name}_{counts[raw_name]}") % 100000
 
                     mapped = normalize_object_name(raw_name)
                     if mapped:
@@ -56,6 +66,17 @@ def run_bytetrack(model, frames: List[str]) -> List[Dict[int, Dict[str, Any]]]:
                         }
             
             tracked_sequence.append(frame_tracks)
+            
+            if job_id:
+                try:
+                    db = SessionLocal()
+                    job = db.query(Job).filter(Job.id == job_id).first()
+                    if job:
+                        job.frames_analyzed = idx + 1
+                        db.commit()
+                    db.close()
+                except Exception as e:
+                    logger.error("[ByteTrack] DB update error: %s", e)
             
     except Exception as e:
         logger.exception("[ByteTrack] Error during tracking: %s", e)

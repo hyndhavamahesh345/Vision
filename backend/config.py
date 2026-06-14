@@ -13,8 +13,9 @@ BACKEND_DIR = Path(__file__).resolve().parent
 UPLOAD_DIR = Path(os.getenv("UPLOAD_DIR", str(BACKEND_DIR / "uploads")))
 FRAMES_DIR = Path(os.getenv("FRAMES_DIR", str(BACKEND_DIR / "frames")))
 OUTPUT_DIR = BACKEND_DIR / "output"
+ANNOTATED_DIR = BACKEND_DIR / "static" / "annotated"
 
-for d in [UPLOAD_DIR, FRAMES_DIR, OUTPUT_DIR]:
+for d in [UPLOAD_DIR, FRAMES_DIR, OUTPUT_DIR, ANNOTATED_DIR]:
     d.mkdir(parents=True, exist_ok=True)
 
 # ── API / Model Config ────────────────────────────────────────────────────────

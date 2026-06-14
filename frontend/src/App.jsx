@@ -1226,6 +1226,23 @@ export default function App() {
             {/* Stats */}
             <StatsGrid inventory={inventory} />
 
+            {/* Annotated Frames Viewer */}
+            {inventory.annotated_frames && inventory.annotated_frames.length > 0 && (
+              <div className="p-6 md:p-8 rounded-3xl bg-slate-900/40 backdrop-blur-xl border border-slate-800/90 shadow-md">
+                <h2 className="text-sm font-bold text-slate-200 flex items-center gap-2 mb-4">
+                  <Image className="w-4 h-4 text-indigo-400" />
+                  AI Detection Frames
+                </h2>
+                <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
+                  {inventory.annotated_frames.map((frame, idx) => (
+                    <div key={idx} className="shrink-0 w-[400px] rounded-xl border border-slate-800 overflow-hidden bg-slate-950">
+                      <img src={`${API_BASE_URL}${frame}`} alt={`Detection ${idx}`} className="w-full h-auto object-contain" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Main content — inventory table + sidebar */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
