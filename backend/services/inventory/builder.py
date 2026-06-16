@@ -82,7 +82,8 @@ def normalize_object_name(raw_name: str) -> Optional[str]:
         if len(obj) > 2 and (obj in name or name in obj):
             return CANONICAL.get(obj, obj)
 
-    return name
+    # STRICT FILTERING: If the AI detects something completely unknown like 'bird', delete it immediately.
+    return None
 
 def merge_detections(detections_per_frame: List[List[str]]) -> List[Dict]:
     max_counts: Dict[str, int] = {}

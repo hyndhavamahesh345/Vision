@@ -3,24 +3,24 @@ from services.inventory.builder import normalize_object_name
 
 CLASS_THRESHOLDS = {
     "air conditioner": 0.20,
-    "ceiling fan": 0.20,
-    "fan": 0.20,
+    "ceiling fan": 0.15,
+    "fan": 0.15,
     "chair": 0.35,
     "sofa": 0.35,
     "table": 0.35,
-    "light": 0.20,
-    "ceiling light": 0.20,
+    "light": 0.15,
+    "ceiling light": 0.15,
     "lamp": 0.25,
-    "chandelier": 0.20,
-    "television": 0.20,
-    "tv": 0.20,
-    "monitor": 0.20,
+    "chandelier": 0.15,
+    "television": 0.50,
+    "tv": 0.50,
+    "monitor": 0.50,
     "cupboard": 0.20,
     "cabinet": 0.20,
-    "refrigerator": 0.40,
-    "bed": 0.35,
-    "microwave": 0.40,
-    "oven": 0.40,
+    "refrigerator": 0.50,
+    "bed": 0.45,
+    "microwave": 0.50,
+    "oven": 0.50,
     "washing machine": 0.40,
     "picture frame": 0.60,
     "painting": 0.60,
@@ -30,7 +30,10 @@ CLASS_THRESHOLDS = {
     "bathtub": 0.70,
     "sink": 0.70,
     "shower": 0.70,
-    "toilet": 0.70
+    "toilet": 0.70,
+    "geyser": 0.15,
+    "water heater": 0.15,
+    "bench": 0.50
 }
 DEFAULT_THRESH = 0.35
 UNCERTAIN_THRESH = 0.25
@@ -51,7 +54,7 @@ def compute_iou(box1, box2):
 
     return interArea / float(box1Area + box2Area - interArea)
 
-def run_nms(detections: List[Dict[str, Any]], iou_thresh: float = 0.45) -> List[Dict[str, Any]]:
+def run_nms(detections: List[Dict[str, Any]], iou_thresh: float = 0.30) -> List[Dict[str, Any]]:
     sorted_dets = sorted(detections, key=lambda x: x.get("confidence", 0), reverse=True)
     kept = []
     for det in sorted_dets:

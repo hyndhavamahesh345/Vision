@@ -24,7 +24,7 @@ def analyze_frame(frame_path: str, job_id: str = None, frame_idx: int = None):
         return []
     
     # RTDETR prediction
-    res = model.predict(frame_path, verbose=False, conf=0.15, iou=0.60, agnostic_nms=True)[0]
+    res = model.predict(frame_path, verbose=False, conf=0.25, iou=0.60, agnostic_nms=True)[0]
     detections = []
     
     if res.boxes is not None and len(res.boxes) > 0:
