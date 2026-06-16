@@ -29,8 +29,9 @@ async def upload_video_endpoint(file: UploadFile = File(...), db: Session = Depe
     
     # Save locally temporarily before uploading to MinIO
     local_path = UPLOAD_DIR / f"{job_id}{ext}"
+    import shutil
     with open(local_path, "wb") as f:
-        f.write(await file.read())
+        shutil.copyfileobj(file.file, f)
 
     # Upload to MinIO
     object_name = upload_video(job_id, str(local_path), ext)
