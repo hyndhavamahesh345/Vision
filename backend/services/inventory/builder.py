@@ -6,7 +6,7 @@ HOUSEHOLD_OBJECTS = [
     "desk", "tv", "television", "monitor", "bed", "mattress", "wardrobe", "closet",
     "cabinet", "cupboard", "refrigerator", "fridge", "fan", "ceiling fan", "light",
     "lamp", "chandelier", "door", "window", "shelf", "bookshelf", "rack",
-    "clock", "rug", "carpet", "curtain", "blinds", "plant", "potted plant",
+    "clock", "rug", "carpet",
     "washing machine", "microwave", "oven", "stove", "sink", "toilet", "bathtub",
     "shower", "mirror", "pillow", "cushion",
     "blanket", "air conditioner", "heater", "water heater", "geyser", "fireplace", "staircase",
@@ -20,8 +20,8 @@ UNIQUE_HOUSEHOLD_OBJECTS = sorted(list(set([
     "sofa", "chair", "armchair", "table", "dining table", "coffee table", "meeting table", "conference table",
     "desk", "tv", "bed", "wardrobe", "closet", "cabinet", "cupboard", 
     "refrigerator", "fan", "ceiling fan", "light", "lamp", "chandelier", 
-    "door", "window", "shelf", "bookshelf", "clock", "rug", "curtain", 
-    "blinds", "plant", "washing machine", "microwave", "oven", "stove", 
+    "door", "window", "shelf", "bookshelf", "clock", "rug",
+    "washing machine", "microwave", "oven", "stove", 
     "sink", "toilet", "bathtub", "shower", "mirror", 
     "pillow", "cushion", "blanket", "air conditioner", 
     "heater", "water heater", "fireplace", "staircase", "drawer", "nightstand", 
@@ -46,8 +46,6 @@ CANONICAL = {
     "wall light": "light", "bulb": "light", "light bulb": "light", "light fixture": "light",
     "bookshelf": "bookshelf", "bookcase": "bookshelf", "rack": "shelf",
     "carpet": "rug", "mat": "rug",
-    "blinds": "blinds", "drapes": "curtain", "window blind": "blinds", "window shade": "blinds", "curtain rod": "curtain",
-    "potted plant": "plant", "indoor plant": "plant", "flower": "plant",
     "washing machine": "washing machine", "microwave": "microwave",
     "oven": "oven", "stove": "stove", "kettle": "kettle",
     "toaster": "toaster", "dishwasher": "dishwasher", "dryer": "dryer",
@@ -70,6 +68,9 @@ def normalize_object_name(raw_name: str) -> Optional[str]:
     if raw_name is None:
         return None
     name = str(raw_name).lower().strip()
+    
+    if name == "person" or name == "plant" or name == "curtain" or name == "blinds" or name == "potted plant":
+        return None
 
     if name in CANONICAL:
         return CANONICAL[name]

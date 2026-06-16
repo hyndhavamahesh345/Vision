@@ -11,7 +11,12 @@ CLASS_THRESHOLDS = {
     "light": 0.20,
     "ceiling light": 0.20,
     "lamp": 0.25,
-    "television": 0.40,
+    "chandelier": 0.20,
+    "television": 0.20,
+    "tv": 0.20,
+    "monitor": 0.20,
+    "cupboard": 0.20,
+    "cabinet": 0.20,
     "refrigerator": 0.40,
     "bed": 0.35,
     "microwave": 0.40,
@@ -22,7 +27,10 @@ CLASS_THRESHOLDS = {
     "window": 0.20,
     "door": 0.20,
     "light switch": 0.15,
-    "bathtub": 0.60
+    "bathtub": 0.70,
+    "sink": 0.70,
+    "shower": 0.70,
+    "toilet": 0.70
 }
 DEFAULT_THRESH = 0.35
 UNCERTAIN_THRESH = 0.25
