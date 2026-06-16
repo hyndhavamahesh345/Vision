@@ -8,13 +8,27 @@ HOUSEHOLD_OBJECTS = [
     "lamp", "chandelier", "door", "window", "shelf", "bookshelf", "rack",
     "clock", "rug", "carpet", "curtain", "blinds", "plant", "potted plant",
     "washing machine", "microwave", "oven", "stove", "sink", "toilet", "bathtub",
-    "shower", "mirror", "picture frame", "painting", "pillow", "cushion",
+    "shower", "mirror", "pillow", "cushion",
     "blanket", "air conditioner", "heater", "water heater", "geyser", "fireplace", "staircase",
     "drawer", "nightstand", "bench", "ottoman", "bookcase", "kettle",
     "toaster", "dishwasher", "dryer", "iron", "vacuum", "printer",
     "speaker", "router", "phone", "laptop", "computer", "power plugs", "light switch",
     "projector", "chimney", "ac"
 ]
+
+UNIQUE_HOUSEHOLD_OBJECTS = sorted(list(set([
+    "sofa", "chair", "armchair", "table", "dining table", "coffee table",
+    "desk", "tv", "bed", "wardrobe", "closet", "cabinet", "cupboard", 
+    "refrigerator", "fan", "ceiling fan", "light", "lamp", "chandelier", 
+    "door", "window", "shelf", "bookshelf", "clock", "rug", "curtain", 
+    "blinds", "plant", "washing machine", "microwave", "oven", "stove", 
+    "sink", "toilet", "bathtub", "shower", "mirror", 
+    "pillow", "cushion", "blanket", "air conditioner", 
+    "heater", "water heater", "fireplace", "staircase", "drawer", "nightstand", 
+    "bench", "ottoman", "kettle", "toaster", "dishwasher", "dryer", 
+    "iron", "vacuum", "printer", "speaker", "router", "phone", "laptop", 
+    "computer", "power plugs", "light switch", "projector", "chimney", "stool"
+])))
 
 CANONICAL = {
     "couch": "sofa", "settee": "sofa",
@@ -39,7 +53,7 @@ CANONICAL = {
     "toaster": "toaster", "dishwasher": "dishwasher", "dryer": "dryer",
     "iron": "iron", "vacuum": "vacuum",
     "ottoman": "ottoman", "bench": "bench",
-    "picture frame": "picture frame", "painting": "painting",
+
     "pillow": "pillow",
     "air conditioner": "air conditioner", "heater": "heater", "water heater": "geyser", "geyser": "geyser", "ac": "air conditioner",
     "power plugs and sockets": "power plugs", "power outlet": "power plugs",

@@ -27,9 +27,9 @@ def extract_frames(job_id: str, video_path: str) -> List[str]:
         if count % interval == 0:
             path = frames_dir / f"frame_{saved:04d}.jpg"
             h, w = frame.shape[:2]
-            if w > 640:
-                scale = 640 / w
-                frame = cv.resize(frame, (640, int(h * scale)), interpolation=cv.INTER_AREA)
+            if w > 320:
+                scale = 320 / w
+                frame = cv.resize(frame, (320, int(h * scale)), interpolation=cv.INTER_AREA)
             cv.imwrite(str(path), frame, [cv.IMWRITE_JPEG_QUALITY, FRAME_QUALITY])
             frames.append(str(path))
             saved += 1

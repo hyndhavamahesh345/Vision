@@ -1,0 +1,55 @@
+services:
+  # 1. Redis Queue
+  - type: redis
+    name: visionvault-redis
+    ipAllowList: [] # internal only
+    plan: free
+
+  # 2. FastAPI Web Server
+  - type: web
+    name: visionvault-api
+    env: docker
+    dockerContext: ./backend
+    dockerfilePath: ./backend/Dockerfile
+    plan: starter # YOLO-World needs some RAM
+    envVars:
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: visionvault-redis
+          property: connectionString
+      - key: CELERY_BROKER_URL
+        fromService:
+          type: redis
+          name: visionvault-redis
+          property: connectionString
+      - key: CELERY_RESULT_BACKEND
+        fromService:
+          type: redis
+          name: visionvault-redis
+          property: connectionString
+
+  # 3. Celery Background Worker
+  - type: worker
+    name: visionvault-worker
+    env: docker
+    dockerContext: ./backend
+    dockerfilePath: ./backend/Dockerfile
+    plan: starter # YOLO-World needs some RAM
+    dockerCommand: celery -A worker.tasks worker --loglevel=info --pool=solo
+    envVars:
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: visionvault-redis
+          property: connectionString
+      - key: CELERY_BROKER_URL
+        fromService:
+          type: redis
+          name: visionvault-redis
+          property: connectionString
+      - key: CELERY_RESULT_BACKEND
+        fromService:
+          type: redis
+          name: visionvault-redis
+          property: connectionString

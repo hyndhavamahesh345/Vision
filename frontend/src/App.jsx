@@ -35,7 +35,8 @@ import {
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8001'
+// The standard API base URL from the Vercel environment variables
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8001';
 
 const CATEGORIES = [
   'All',
@@ -159,9 +160,9 @@ function Header({ pipeline, onReset }) {
             <Sparkles className="w-3 h-3 text-indigo-400" style={{ animation: 'spin 4s linear infinite' }} />
             {pipeline
               ? pipeline.includes('hybrid') || pipeline.includes('yolo')
-                ? 'YOLO11s Detection'
+                ? '3-Tier Hybrid AI'
                 : 'AI Vision'
-              : 'YOLO11s Detection'}
+              : '3-Tier Hybrid AI'}
           </span>
           <span className="relative flex h-2.5 w-2.5">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
@@ -878,7 +879,7 @@ export default function App() {
             ? Math.min(90, 30 + (d.frames_analyzed / d.frames_extracted) * 60)
             : 35
           setProgress(pct)
-          setStatusMsg(`⚡ YOLO11s · ${d.frames_analyzed}/${d.frames_extracted || '?'} frames`)
+          setStatusMsg(`⚡ 3-Tier Hybrid AI · ${d.frames_analyzed}/${d.frames_extracted || '?'} frames`)
         } else if (d.status === 'merging') {
           setActiveStep(3); setProgress(95); setStatusMsg('Merging detections...')
         } else {
@@ -1349,7 +1350,7 @@ export default function App() {
       {/* Footer */}
       <footer className="relative z-10 mt-20 w-full py-8 px-6 text-center border-t border-slate-900/50 bg-slate-950/20">
         <p className="text-xs text-slate-500 mb-1">© 2026 VisionVault AI · All rights reserved.</p>
-        <p className="text-xs text-slate-700">Powered by YOLO11s · 100% local · Zero cloud dependency.</p>
+        <p className="text-xs text-slate-700">Powered by 3-Tier Hybrid Engine (YOLO26) · 100% local · Zero cloud dependency.</p>
       </footer>
     </div>
   )

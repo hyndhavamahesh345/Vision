@@ -10,8 +10,8 @@ from storage.minio import download_video
 from db.postgres import SessionLocal, Job, Inventory, Detection
 
 from services.video.frame_extractor import extract_frames
-from services.fusion.fusion_engine import run_hybrid_pipeline, run_simulated_pipeline
-from services.inventory.builder import merge_detections
+from detection_engine.router import route_frame
+from aggregator.aggregator import aggregate_detections
 from services.room.classifier import get_local_room_assignment
 
 def update_job_status(db: Session, job_id: str, status: str, pipeline: str = None, error: str = None, frames_extracted: int = 0, frames_analyzed: int = 0):
@@ -48,19 +48,18 @@ def process_video_task(self, job_id: str, object_name: str):
 
         update_job_status(db, job_id, "analyzing")
 
-        if USE_HYBRID:
-            pipeline_name, all_detections = run_hybrid_pipeline(job_id, local_video_path, frames)
-            flat_count = sum(len(f) for f in all_detections)
-            if flat_count == 0:
-                pipeline_name = "simulated fallback"
-                all_detections = run_simulated_pipeline(job_id, frames)
-        else:
-            pipeline_name = "simulated"
-            all_detections = run_simulated_pipeline(job_id, frames)
+        all_detections = []
+        for idx, frame_path in enumerate(frames):
+            # Route frame through tiers
+            frame_detections = route_frame(frame_path, "3-tier hybrid", job_id, idx)
+            all_detections.extend(frame_detections)
+            if idx % 5 == 0:  # Update DB periodically to avoid hammering it
+                update_job_status(db, job_id, "analyzing", frames_analyzed=idx+1)
 
-        update_job_status(db, job_id, "merging", pipeline=pipeline_name, frames_analyzed=len(frames))
+        update_job_status(db, job_id, "merging", pipeline="3-tier hybrid", frames_analyzed=len(frames))
         
-        inventory = merge_detections(all_detections)
+        agg_result = aggregate_detections(all_detections)
+        inventory = agg_result["inventory"]
 
         # Save to database
         for item in inventory:
