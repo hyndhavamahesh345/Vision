@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "http://13.62.52.213:8001/api/:path*"
+    },
+    {
+      "source": "/annotated_frames/:path*",
+      "destination": "http://13.62.52.213:8001/annotated_frames/:path*"
+    }
+  ]
+}

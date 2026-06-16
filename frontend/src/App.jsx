@@ -36,7 +36,7 @@ import {
 // ── Constants ──────────────────────────────────────────────────────────────────
 
 // The standard API base URL from the Vercel environment variables
-const API_BASE_URL = 'http://13.62.52.213:8001';
+const API_BASE_URL = import.meta.env.MODE === 'production' ? '' : 'http://13.62.52.213:8001';
 
 const CATEGORIES = [
   'All',
