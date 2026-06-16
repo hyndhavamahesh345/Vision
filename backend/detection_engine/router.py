@@ -9,12 +9,12 @@ def route_frame(frame_path: str, strategy: str = "hybrid", job_id: str = None, f
     """
     if strategy == "yolo11s":
         # Force Tier 1 only (fast mode)
-        detections = t1.analyze_frame(frame_path, job_id=None, frame_idx=None)
+        detections = t1.analyze_frame(frame_path, job_id=job_id, frame_idx=frame_idx)
     else:
         # Hybrid Pipeline
-        det1 = t1.analyze_frame(frame_path, job_id=None, frame_idx=None)
-        det2 = t2.analyze_frame(frame_path, job_id=None, frame_idx=None)
-        det3 = t3.analyze_frame(frame_path, job_id=None, frame_idx=None)
+        det1 = t1.analyze_frame(frame_path, job_id=job_id, frame_idx=frame_idx)
+        det2 = t2.analyze_frame(frame_path, job_id=job_id, frame_idx=frame_idx)
+        det3 = t3.analyze_frame(frame_path, job_id=job_id, frame_idx=frame_idx)
         detections = det1 + det2 + det3
         
     if job_id is not None and frame_idx is not None:
