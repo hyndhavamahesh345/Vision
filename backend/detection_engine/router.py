@@ -1,21 +1,11 @@
 from config import logger
-from detection_engine import tier1_yolo26 as t1
 from detection_engine import tier2_yolov12_world as t2
-from detection_engine import tier3_rtdetr as t3
 
-def route_frame(frame_path: str, strategy: str = "hybrid", job_id: str = None, frame_idx: int = None):
+def route_frame(frame_path: str, strategy: str = "yolo-world", job_id: str = None, frame_idx: int = None):
     """
     Routes a frame through the detection tiers.
     """
-    if strategy == "yolo11s":
-        # Force Tier 1 only (fast mode)
-        detections = t1.analyze_frame(frame_path, job_id=job_id, frame_idx=frame_idx)
-    else:
-        # Hybrid Pipeline
-        det1 = t1.analyze_frame(frame_path, job_id=job_id, frame_idx=frame_idx)
-        det2 = t2.analyze_frame(frame_path, job_id=job_id, frame_idx=frame_idx)
-        det3 = t3.analyze_frame(frame_path, job_id=job_id, frame_idx=frame_idx)
-        detections = det1 + det2 + det3
+    detections = t2.analyze_frame(frame_path, job_id=job_id, frame_idx=frame_idx)
         
     if job_id is not None and frame_idx is not None:
         from config import ANNOTATED_DIR

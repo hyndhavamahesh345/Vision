@@ -50,13 +50,13 @@ def process_video_task(self, job_id: str, object_name: str):
 
         all_detections = []
         for idx, frame_path in enumerate(frames):
-            # Route frame through tiers
-            frame_detections = route_frame(frame_path, "3-tier hybrid", job_id, idx)
+            # Route frame through YOLO-World
+            frame_detections = route_frame(frame_path, "yolo-world", job_id, idx)
             all_detections.extend(frame_detections)
             if idx % 5 == 0:  # Update DB periodically to avoid hammering it
                 update_job_status(db, job_id, "analyzing", frames_analyzed=idx+1)
 
-        update_job_status(db, job_id, "merging", pipeline="3-tier hybrid", frames_analyzed=len(frames))
+        update_job_status(db, job_id, "merging", pipeline="yolo-world", frames_analyzed=len(frames))
         
         agg_result = aggregate_detections(all_detections)
         inventory = agg_result["inventory"]
