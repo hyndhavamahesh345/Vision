@@ -40,27 +40,4 @@ def analyze_frame(frame_path: str, job_id: str = None, frame_idx: int = None):
                 "frame_idx": frame_idx
             })
             
-    if job_id is not None and frame_idx is not None:
-        from config import ANNOTATED_DIR
-        from aggregator.aggregator import CLASS_THRESHOLDS, DEFAULT_THRESH
-        from services.inventory.builder import normalize_object_name
-        import cv2
-        
-        try:
-            img = cv2.imread(frame_path)
-            for d in detections:
-                canonical = normalize_object_name(d["label"])
-                target_thresh = CLASS_THRESHOLDS.get(canonical, DEFAULT_THRESH)
-                
-                # Only draw the box if it passes the aggregator's strict threshold
-                if d["confidence"] >= target_thresh:
-                    x1, y1, x2, y2 = map(int, d["bbox"])
-                    cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 3)
-                    text = f'{d["label"]} {d["confidence"]:.2f}'
-                    cv2.putText(img, text, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
-                    
-            cv2.imwrite(str(ANNOTATED_DIR / f"{job_id}_{frame_idx}.jpg"), img)
-        except Exception as e:
-            logger.error(f"Failed to save annotated frame: {e}")
-            
     return detections
