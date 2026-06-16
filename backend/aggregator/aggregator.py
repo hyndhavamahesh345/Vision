@@ -21,8 +21,8 @@ CLASS_THRESHOLDS = {
     "light switch": 0.35,
     "bathtub": 0.60
 }
-DEFAULT_THRESH = 0.20
-UNCERTAIN_THRESH = 0.10
+DEFAULT_THRESH = 0.35
+UNCERTAIN_THRESH = 0.25
 MIN_TEMPORAL_FRAMES = 1
 
 def aggregate_detections(all_frame_detections: List[Dict[str, Any]]) -> Dict[str, Any]:
