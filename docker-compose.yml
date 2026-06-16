@@ -8,6 +8,17 @@ services:
       - "6379:6379"
     restart: always
 
+  db:
+    image: postgres:15-alpine
+    container_name: visionvault_db
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=visionvault
+    ports:
+      - "5432:5432"
+    restart: always
+
   api:
     build: 
       context: ./backend
@@ -19,8 +30,10 @@ services:
       - REDIS_URL=redis://redis:6379/0
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - DATABASE_URL=postgresql://admin:password@db:5432/visionvault
     depends_on:
       - redis
+      - db
     command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8001"]
     restart: always
 
@@ -33,7 +46,9 @@ services:
       - REDIS_URL=redis://redis:6379/0
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - DATABASE_URL=postgresql://admin:password@db:5432/visionvault
     depends_on:
       - redis
+      - db
     command: ["celery", "-A", "worker.tasks", "worker", "--loglevel=info", "--pool=solo"]
     restart: always
