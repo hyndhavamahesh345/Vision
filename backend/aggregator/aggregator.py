@@ -3,14 +3,25 @@ from services.inventory.builder import normalize_object_name
 
 CLASS_THRESHOLDS = {
     "air conditioner": 0.20,
+    "ac": 0.20,
     "ceiling fan": 0.15,
+    "table fan": 0.20,
+    "pedestal fan": 0.20,
     "fan": 0.15,
     "chair": 0.35,
+    "office chair": 0.40,
+    "dining chair": 0.40,
+    "gaming chair": 0.45,
+    "bar stool": 0.45,
     "sofa": 0.35,
+    "l-shaped sofa": 0.40,
     "table": 0.35,
     "light": 0.15,
     "ceiling light": 0.15,
+    "wall light": 0.15,
     "lamp": 0.25,
+    "floor lamp": 0.30,
+    "table lamp": 0.30,
     "chandelier": 0.15,
     "television": 0.50,
     "tv": 0.50,
@@ -19,6 +30,7 @@ CLASS_THRESHOLDS = {
     "cabinet": 0.20,
     "refrigerator": 0.50,
     "bed": 0.45,
+    "bunk bed": 0.50,
     "microwave": 0.50,
     "oven": 0.50,
     "washing machine": 0.40,
@@ -33,7 +45,10 @@ CLASS_THRESHOLDS = {
     "toilet": 0.70,
     "geyser": 0.15,
     "water heater": 0.15,
-    "bench": 0.50
+    "bench": 0.50,
+    "rug": 0.30,
+    "carpet": 0.30,
+    "mat": 0.30
 }
 DEFAULT_THRESH = 0.35
 UNCERTAIN_THRESH = 0.25

@@ -36,7 +36,7 @@ default_max_frames = "30"
 default_frame_quality = "60" if FAST_MODE else "80"
 
 MAX_FRAMES                = int(os.getenv("MAX_FRAMES", default_max_frames))
-FRAME_INTERVAL_SEC        = float(os.getenv("FRAME_INTERVAL_SEC", "1.0"))
+FRAME_INTERVAL_SEC        = float(os.getenv("FRAME_INTERVAL_SEC", "2.0"))
 FRAME_QUALITY             = int(os.getenv("FRAME_QUALITY", default_frame_quality))
 
 YOLO_CONF_THRESHOLD = float(os.getenv("YOLO_CONF", "0.08"))
