@@ -7,14 +7,14 @@ HOUSEHOLD_OBJECTS = [
     "cabinet", "cupboard", "refrigerator", "fridge", "fan", "ceiling fan", "table fan", "pedestal fan", "light",
     "lamp", "chandelier", "floor lamp", "table lamp", "wall light", "ceiling light",
     "door", "window", "shelf", "bookshelf", "rack",
-    "clock", "rug", "carpet", "mat",
+    "clock", "rug", "carpet",
     "washing machine", "microwave", "oven", "stove", "sink", "toilet", "bathtub",
     "shower", "mirror", "pillow", "cushion",
     "blanket", "air conditioner", "heater", "water heater", "geyser", "fireplace", "staircase",
     "drawer", "nightstand", "bench", "ottoman", "bookcase", "kettle",
     "toaster", "dishwasher", "dryer", "iron", "vacuum", "printer",
     "speaker", "router", "phone", "laptop", "computer", "power plugs", "light switch",
-    "projector", "chimney", "ac", "office chair", "dining chair", "l-shaped sofa", "gaming chair", "bar stool", "bunk bed"
+    "projector", "chimney", "ac", "office chair", "dining chair", "l-shaped sofa", "gaming chair", "bar stool", "bunk bed", "furniture"
 ]
 
 UNIQUE_HOUSEHOLD_OBJECTS = sorted(list(set([
@@ -23,14 +23,14 @@ UNIQUE_HOUSEHOLD_OBJECTS = sorted(list(set([
     "tv", "bed", "bunk bed", "wardrobe", "closet", "cabinet", "cupboard", 
     "refrigerator", "fan", "ceiling fan", "table fan", "pedestal fan", 
     "light", "lamp", "chandelier", "floor lamp", "table lamp", "wall light", "ceiling light",
-    "door", "window", "shelf", "bookshelf", "clock", "rug", "carpet", "mat",
+    "door", "window", "shelf", "bookshelf", "clock", "rug", "carpet",
     "washing machine", "microwave", "oven", "stove", 
     "sink", "toilet", "bathtub", "shower", "mirror", 
     "pillow", "cushion", "blanket", "air conditioner", 
     "heater", "water heater", "fireplace", "staircase", "drawer", "nightstand", 
     "bench", "ottoman", "kettle", "toaster", "dishwasher", "dryer", 
     "iron", "vacuum", "printer", "speaker", "router", "phone", "laptop", 
-    "computer", "power plugs", "light switch", "projector", "chimney", "stool"
+    "computer", "power plugs", "light switch", "projector", "chimney", "stool", "furniture"
 ])))
 
 CANONICAL = {
@@ -48,6 +48,7 @@ CANONICAL = {
     "toaster": "toaster", "dishwasher": "dishwasher", "dryer": "dryer",
     "iron": "iron", "vacuum": "vacuum",
     "ottoman": "bench", "bench": "bench",
+    "mat": "rug",
 
     "pillow": "pillow",
     "air conditioner": "air conditioner", "heater": "heater", "water heater": "geyser", "geyser": "geyser", "ac": "air conditioner",
