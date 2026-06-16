@@ -2,12 +2,15 @@ from typing import List, Dict, Any
 from services.inventory.builder import normalize_object_name
 
 CLASS_THRESHOLDS = {
-    "air conditioner": 0.45,
-    "ceiling fan": 0.40,
+    "air conditioner": 0.20,
+    "ceiling fan": 0.20,
+    "fan": 0.20,
     "chair": 0.35,
     "sofa": 0.35,
     "table": 0.35,
-    "ceiling light": 0.35,
+    "light": 0.20,
+    "ceiling light": 0.20,
+    "lamp": 0.25,
     "television": 0.40,
     "refrigerator": 0.40,
     "bed": 0.35,
@@ -18,12 +21,40 @@ CLASS_THRESHOLDS = {
     "painting": 0.60,
     "window": 0.20,
     "door": 0.20,
-    "light switch": 0.35,
+    "light switch": 0.15,
     "bathtub": 0.60
 }
 DEFAULT_THRESH = 0.35
 UNCERTAIN_THRESH = 0.25
 MIN_TEMPORAL_FRAMES = 1
+
+def compute_iou(box1, box2):
+    x1 = max(box1[0], box2[0])
+    y1 = max(box1[1], box2[1])
+    x2 = min(box1[2], box2[2])
+    y2 = min(box1[3], box2[3])
+
+    interArea = max(0, x2 - x1) * max(0, y2 - y1)
+    if interArea == 0:
+        return 0
+
+    box1Area = (box1[2] - box1[0]) * (box1[3] - box1[1])
+    box2Area = (box2[2] - box2[0]) * (box2[3] - box2[1])
+
+    return interArea / float(box1Area + box2Area - interArea)
+
+def run_nms(detections: List[Dict[str, Any]], iou_thresh: float = 0.45) -> List[Dict[str, Any]]:
+    sorted_dets = sorted(detections, key=lambda x: x.get("confidence", 0), reverse=True)
+    kept = []
+    for det in sorted_dets:
+        overlap = False
+        for k_det in kept:
+            if compute_iou(det.get("bbox", [0,0,0,0]), k_det.get("bbox", [0,0,0,0])) > iou_thresh:
+                overlap = True
+                break
+        if not overlap:
+            kept.append(det)
+    return kept
 
 def aggregate_detections(all_frame_detections: List[Dict[str, Any]]) -> Dict[str, Any]:
     """
@@ -47,7 +78,10 @@ def aggregate_detections(all_frame_detections: List[Dict[str, Any]]) -> Dict[str
     max_counts_per_class: Dict[str, int] = {}
     uncertain_candidates: set = set()
     
-    for f_idx, detections in frame_groups.items():
+    for f_idx, raw_detections in frame_groups.items():
+        # Apply NMS to remove duplicates across models within the same frame
+        detections = run_nms(raw_detections, iou_thresh=0.45)
+        
         frame_counts: Dict[str, int] = {}
         for det in detections:
             raw_label = det.get("label")

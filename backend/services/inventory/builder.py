@@ -2,7 +2,7 @@ from typing import Optional, List, Dict
 
 # ── Household Vocabulary ──────────────────────────────────────────────────────
 HOUSEHOLD_OBJECTS = [
-    "sofa", "couch", "chair", "armchair", "table", "dining table", "coffee table",
+    "sofa", "couch", "chair", "armchair", "table", "dining table", "coffee table", "meeting table", "conference table",
     "desk", "tv", "television", "monitor", "bed", "mattress", "wardrobe", "closet",
     "cabinet", "cupboard", "refrigerator", "fridge", "fan", "ceiling fan", "light",
     "lamp", "chandelier", "door", "window", "shelf", "bookshelf", "rack",
@@ -17,7 +17,7 @@ HOUSEHOLD_OBJECTS = [
 ]
 
 UNIQUE_HOUSEHOLD_OBJECTS = sorted(list(set([
-    "sofa", "chair", "armchair", "table", "dining table", "coffee table",
+    "sofa", "chair", "armchair", "table", "dining table", "coffee table", "meeting table", "conference table",
     "desk", "tv", "bed", "wardrobe", "closet", "cabinet", "cupboard", 
     "refrigerator", "fan", "ceiling fan", "light", "lamp", "chandelier", 
     "door", "window", "shelf", "bookshelf", "clock", "rug", "curtain", 
