@@ -108,8 +108,8 @@ def aggregate_detections(all_frame_detections: List[Dict[str, Any]]) -> Dict[str
     max_counts_per_class: Dict[str, int] = {}
     uncertain_candidates: set = set()
     
-    # ByteTrack Storage
-    tracker = sv.ByteTrack() if USE_OBJECT_TRACKING else None
+    # ByteTrack Storage (Initialize with low activation threshold so our custom thresholds dictate tracking)
+    tracker = sv.ByteTrack(track_activation_threshold=0.05) if USE_OBJECT_TRACKING else None
     tracked_unique_objects: Dict[str, set] = {}
     
     sorted_frame_indices = sorted(frame_groups.keys())
