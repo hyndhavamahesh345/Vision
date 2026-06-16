@@ -32,7 +32,7 @@ if FAST_MODE:
 else:
     YOLO_CONF_OVERRIDE = None
 
-default_max_frames = "6"
+default_max_frames = "30"
 default_frame_quality = "60" if FAST_MODE else "80"
 
 MAX_FRAMES                = int(os.getenv("MAX_FRAMES", default_max_frames))

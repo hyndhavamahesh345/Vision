@@ -32,6 +32,8 @@ services:
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
       - MINIO_ENDPOINT=minio:9000
       - DATABASE_URL=postgresql://admin:password@db:5432/visionvault
+    volumes:
+      - static_data:/app/static
     depends_on:
       - redis
       - db
@@ -49,6 +51,8 @@ services:
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
       - MINIO_ENDPOINT=minio:9000
       - DATABASE_URL=postgresql://admin:password@db:5432/visionvault
+    volumes:
+      - static_data:/app/static
     depends_on:
       - redis
       - db
@@ -66,3 +70,6 @@ services:
       - MINIO_ROOT_PASSWORD=password123
     command: server /data --console-address ":9001"
     restart: always
+
+volumes:
+  static_data:
