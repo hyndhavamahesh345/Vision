@@ -10,7 +10,7 @@ HOUSEHOLD_OBJECTS = [
     "clock", "rug", "carpet",
     "washing machine", "microwave", "oven", "stove", "sink", "toilet", "bathtub",
     "shower", "mirror", "pillow", "cushion",
-    "blanket", "air conditioner", "heater", "water heater", "geyser", "fireplace", "staircase",
+    "blanket", "air conditioner", "heater", "water heater", "geyser", "bathroom water heater", "wall-mounted water heater", "fireplace", "staircase",
     "drawer", "nightstand", "bench", "ottoman", "bookcase",
     "dishwasher", "dryer", "power plugs", "light switch",
     "chimney", "ac", "office chair", "dining chair", "l-shaped sofa", "gaming chair", "bar stool", "bunk bed", "furniture",
@@ -27,7 +27,7 @@ UNIQUE_HOUSEHOLD_OBJECTS = sorted(list(set([
     "washing machine", "microwave", "oven", "stove", 
     "sink", "toilet", "bathtub", "shower", "mirror", 
     "pillow", "cushion", "blanket", "air conditioner", 
-    "heater", "water heater", "fireplace", "staircase", "drawer", "nightstand", 
+    "heater", "water heater", "geyser", "bathroom water heater", "wall-mounted water heater", "fireplace", "staircase", "drawer", "nightstand", 
     "bench", "ottoman", "dishwasher", "dryer", 
     "power plugs", "light switch", "chimney", "stool", "furniture", "unknown object",
     "plant", "bottle", "mop", "broom", "bucket", "gate", "tv unit", "dressing table"
@@ -49,7 +49,7 @@ CANONICAL = {
     "potted plant": "plant",
 
     "pillow": "pillow",
-    "air conditioner": "air conditioner", "heater": "heater", "water heater": "geyser", "geyser": "geyser", "ac": "air conditioner",
+    "air conditioner": "air conditioner", "heater": "heater", "water heater": "geyser", "geyser": "geyser", "ac": "air conditioner", "bathroom water heater": "geyser", "wall-mounted water heater": "geyser",
     "power plugs and sockets": "power plugs", "power outlet": "power plugs",
     "power plug": "power plugs", "socket": "power plugs", "electrical outlet": "power plugs",
     "outlet": "power plugs", "plug": "power plugs",
