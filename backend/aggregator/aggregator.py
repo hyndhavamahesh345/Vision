@@ -153,10 +153,10 @@ def aggregate_detections(all_frame_detections: List[Dict[str, Any]]) -> Dict[str
                 if conf >= target_thresh or conf >= UNCERTAIN_THRESH:
                     # Tiered Priority Boosting to force correct NMS hierarchy
                     # Tier 1 (Highest Priority) - Structural/Large fixtures
-                    if canonical in {"chandelier", "ceiling fan", "l-shaped sofa", "bunk bed", "diwan cot", "divan cot"}:
+                    if canonical in {"chandelier", "ceiling fan", "l-shaped sofa", "bunk bed", "diwan cot", "divan cot", "exhaust fan", "wall fan"}:
                         conf += 2.0
                     # Tier 2 (Medium Priority) - Specific furniture items
-                    elif canonical in {"office chair", "gaming chair", "dining chair", "bar stool", "floor lamp", "wall light", "ceiling light", "table fan", "pedestal fan", "exhaust fan", "wall fan", "table lamp"}:
+                    elif canonical in {"office chair", "gaming chair", "dining chair", "bar stool", "floor lamp", "wall light", "ceiling light", "table fan", "pedestal fan", "table lamp"}:
                         conf += 1.0
                         
                     boxes.append(bbox)
