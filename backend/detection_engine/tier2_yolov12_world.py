@@ -9,8 +9,8 @@ def get_model():
     if _model is None:
         try:
             model_path = BACKEND_DIR / "weights" / "yolov8x-worldv2.pt"
-            logger.info("Initializing Tier 2 (YOLOv12-World)...")
-            _model = YOLOWorld('yolov8s-world.pt')
+            logger.info("Initializing Tier 2 (YOLO-World XL)...")
+            _model = YOLOWorld('yolov8x-worldv2.pt')
             _model.set_classes(UNIQUE_HOUSEHOLD_OBJECTS)
             logger.info("Tier 2 ready.")
         except Exception as e:

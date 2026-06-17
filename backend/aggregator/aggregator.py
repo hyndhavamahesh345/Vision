@@ -156,7 +156,7 @@ def aggregate_detections(all_frame_detections: List[Dict[str, Any]]) -> Dict[str
                     if canonical in {"chandelier", "ceiling fan", "l-shaped sofa", "bunk bed", "diwan cot", "divan cot"}:
                         conf += 2.0
                     # Tier 2 (Medium Priority) - Specific furniture items
-                    elif canonical in {"office chair", "gaming chair", "dining chair", "bar stool", "floor lamp", "wall light", "ceiling light", "table fan", "pedestal fan", "exhaust fan", "table lamp"}:
+                    elif canonical in {"office chair", "gaming chair", "dining chair", "bar stool", "floor lamp", "wall light", "ceiling light", "table fan", "pedestal fan", "exhaust fan", "wall fan", "table lamp"}:
                         conf += 1.0
                         
                     boxes.append(bbox)
