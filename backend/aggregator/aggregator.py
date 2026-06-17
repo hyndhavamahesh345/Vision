@@ -67,6 +67,15 @@ CLASS_THRESHOLDS = {
     "gate": 0.30,
     "tv unit": 0.30,
     "dressing table": 0.30,
+    "curtain": 0.25,
+    "blinds": 0.25,
+    "water purifier": 0.25,
+    "gas cylinder": 0.35,
+    "mixer grinder": 0.25,
+    "trash can": 0.25,
+    "balcony railing": 0.20,
+    "swing": 0.25,
+    "inverter": 0.30,
     "chimney": 0.20,
     "unknown object": 0.50
 }

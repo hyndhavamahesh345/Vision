@@ -13,6 +13,7 @@ HOUSEHOLD_OBJECTS = [
     "blanket", "air conditioner", "heater", "water heater", "geyser", "bathroom water heater", "wall-mounted water heater", "water boiler", "small water tank", "fireplace", "staircase",
     "drawer", "nightstand", "bench", "ottoman", "bookcase",
     "dishwasher", "dryer", "power plugs", "light switch",
+    "curtain", "blinds", "water purifier", "ro purifier", "gas cylinder", "mixer grinder", "blender", "trash can", "dustbin", "balcony railing", "grill", "washbasin", "tubelight", "swing", "inverter",
     "chimney", "ac", "office chair", "dining chair", "l-shaped sofa", "gaming chair", "bar stool", "bunk bed", "furniture",
     "diwan cot", "divan cot", "unknown object", "plant", "potted plant", "bottle", "mop", "broom", "bucket", "gate", "tv unit", "dressing table"
 ]
@@ -30,6 +31,7 @@ UNIQUE_HOUSEHOLD_OBJECTS = sorted(list(set([
     "heater", "water heater", "geyser", "bathroom water heater", "wall-mounted water heater", "water boiler", "small water tank", "fireplace", "staircase", "drawer", "nightstand", 
     "bench", "ottoman", "dishwasher", "dryer", 
     "power plugs", "light switch", "chimney", "stool", "furniture", "unknown object",
+    "curtain", "blinds", "water purifier", "gas cylinder", "mixer grinder", "trash can", "balcony railing", "swing", "inverter",
     "plant", "bottle", "mop", "broom", "bucket", "gate", "tv unit", "dressing table"
 ])))
 
@@ -56,8 +58,15 @@ CANONICAL = {
     "light switch": "light switch", "switch": "light switch",
     "door handle": "door", "door knob": "door", "door frame": "door", "doorframe": "door",
     "window frame": "window",
-    "sink faucet": "sink", "faucet": "sink", "tap": "sink", "kitchen sink": "sink", "bathroom sink": "sink",
+    "sink faucet": "sink", "faucet": "sink", "tap": "sink", "kitchen sink": "sink", "bathroom sink": "sink", "washbasin": "sink",
     "chimney": "chimney",
+    "ro purifier": "water purifier", "aquaguard": "water purifier",
+    "blender": "mixer grinder", "mixer": "mixer grinder",
+    "dustbin": "trash can", "garbage can": "trash can",
+    "grill": "balcony railing", "railing": "balcony railing",
+    "tubelight": "light", "led light": "light",
+    "jhula": "swing",
+    "battery": "inverter",
     "light bulb": "bulb"
 }
 
