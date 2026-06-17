@@ -81,7 +81,7 @@ CLASS_THRESHOLDS = {
 }
 DEFAULT_THRESH = 0.35
 UNCERTAIN_THRESH = 0.25
-MIN_TEMPORAL_FRAMES = 1
+MIN_TEMPORAL_FRAMES = 2
 
 def compute_iou(box1, box2):
     x1 = max(box1[0], box2[0])
@@ -257,6 +257,49 @@ def aggregate_detections(all_frame_detections: List[Dict[str, Any]]) -> Dict[str
         
     # Populate inventory_list (prefer Tracking if enabled)
     primary_inventory = tracking_inventory if USE_OBJECT_TRACKING else scene_max_inventory
+    
+    # --- SEMANTIC DEDUPLICATION ---
+    # Removes generic objects if a more specific version was found in the same room
+    dedup_rules = {
+        "l-shaped sofa": ["sofa", "couch"],
+        "armchair": ["chair"],
+        "gaming chair": ["chair", "office chair"],
+        "dining chair": ["chair"],
+        "office chair": ["chair"],
+        "bar stool": ["chair", "stool"],
+        "coffee table": ["table"],
+        "dining table": ["table"],
+        "desk": ["table"],
+        "ceiling fan": ["fan"],
+        "pedestal fan": ["fan", "wall fan"],
+        "wall fan": ["fan"],
+        "exhaust fan": ["fan"],
+        "bunk bed": ["bed"],
+        "diwan cot": ["bed", "cot"],
+        "divan cot": ["bed", "cot"],
+        "refrigerator": ["fridge"],
+        "television": ["tv"],
+        "kitchen cabinet": ["cabinet", "cupboard"],
+        "wardrobe": ["closet", "cabinet", "cupboard"],
+        "chandelier": ["ceiling light", "lamp"],
+        "floor lamp": ["lamp"],
+        "table lamp": ["lamp"],
+        "wall light": ["lamp", "ceiling light"],
+    }
+    
+    keys_to_remove = set()
+    active_labels = list(primary_inventory.keys())
+    
+    for specific_item, generic_items in dedup_rules.items():
+        if specific_item in active_labels:
+            for generic_item in generic_items:
+                if generic_item in active_labels:
+                    keys_to_remove.add(generic_item)
+                    
+    for k in keys_to_remove:
+        if k in primary_inventory:
+            del primary_inventory[k]
+            
     for label, count in primary_inventory.items():
         inventory_list.append({
             "name": label,

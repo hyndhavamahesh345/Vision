@@ -22,7 +22,7 @@ def analyze_frame(frame_path: str, job_id: str = None, frame_idx: int = None):
     if not model:
         return []
     
-    res = model.predict(frame_path, verbose=False, conf=0.01, iou=0.60, agnostic_nms=False)[0]
+    res = model.predict(frame_path, verbose=False, conf=0.01, iou=0.60, agnostic_nms=True)[0]
     detections = []
     
     if res.boxes is not None and len(res.boxes) > 0:
