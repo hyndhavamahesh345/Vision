@@ -4,7 +4,7 @@ from typing import Optional, List, Dict
 HOUSEHOLD_OBJECTS = [
     "sofa", "couch", "chair", "armchair", "table", "dining table", "coffee table", "meeting table", "conference table",
     "desk", "tv", "television", "monitor", "bed", "mattress", "wardrobe", "closet",
-    "cabinet", "cupboard", "refrigerator", "fridge", "fan", "ceiling fan", "table fan", "pedestal fan", "exhaust fan", "light",
+    "cabinet", "cupboard", "refrigerator", "fridge", "fan", "ceiling fan", "table fan", "pedestal fan", "exhaust fan", "wall fan", "light",
     "lamp", "chandelier", "floor lamp", "table lamp", "wall light", "ceiling light", "bulb", "light bulb",
     "door", "window", "shelf", "bookshelf", "rack",
     "clock", "rug", "carpet",
@@ -21,7 +21,7 @@ UNIQUE_HOUSEHOLD_OBJECTS = sorted(list(set([
     "sofa", "l-shaped sofa", "chair", "armchair", "office chair", "dining chair", "gaming chair", "bar stool", 
     "table", "dining table", "coffee table", "meeting table", "conference table", "desk", 
     "tv", "bed", "bunk bed", "diwan cot", "divan cot", "wardrobe", "closet", "cabinet", "cupboard", 
-    "refrigerator", "fan", "ceiling fan", "table fan", "pedestal fan", "exhaust fan",
+    "refrigerator", "fan", "ceiling fan", "table fan", "pedestal fan", "exhaust fan", "wall fan",
     "light", "lamp", "chandelier", "floor lamp", "table lamp", "wall light", "ceiling light", "bulb", "light bulb",
     "door", "window", "shelf", "bookshelf", "clock", "rug", "carpet",
     "washing machine", "microwave", "oven", "stove", 
