@@ -16,7 +16,7 @@ supervision>=0.20.0
 ultralytics>=8.3.0
 
 # OpenCLIP secondary image classifier
---extra-index-url https://download.pytorch.org/whl/cpu
+--extra-index-url https://download.pytorch.org/whl/cu121
 torch>=2.0.0
 torchvision>=0.15.0
 open_clip_torch>=2.20.0
