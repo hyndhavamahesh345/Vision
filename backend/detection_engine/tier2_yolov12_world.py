@@ -8,9 +8,9 @@ def get_model():
     global _model
     if _model is None:
         try:
-            model_path = BACKEND_DIR / "weights" / "yolov8l-worldv2.pt"
-            logger.info("Initializing Tier 2 (YOLO-World Large)...")
-            _model = YOLOWorld('yolov8l-worldv2.pt')
+            model_path = BACKEND_DIR / "weights" / "yolov8m-worldv2.pt"
+            logger.info("Initializing Tier 2 (YOLO-World Medium)...")
+            _model = YOLOWorld('yolov8m-worldv2.pt')
             _model.set_classes(UNIQUE_HOUSEHOLD_OBJECTS)
             logger.info("Tier 2 ready.")
         except Exception as e:
@@ -22,7 +22,7 @@ def analyze_frame(frame_path: str, job_id: str = None, frame_idx: int = None):
     if not model:
         return []
     
-    res = model.predict(frame_path, verbose=False, conf=0.01, iou=0.60, agnostic_nms=False)[0]
+    res = model.predict(frame_path, verbose=False, conf=0.05, iou=0.60, agnostic_nms=False, half=True)[0]
     detections = []
     
     if res.boxes is not None and len(res.boxes) > 0:
