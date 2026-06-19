@@ -13,7 +13,7 @@ def extract_frames(job_id: str, video_path: str) -> List[str]:
     total = int(cap.get(cv.CAP_PROP_FRAME_COUNT))
     duration = total / fps
 
-    ABSOLUTE_MAX_FRAMES = 60
+    ABSOLUTE_MAX_FRAMES = MAX_FRAMES
     
     frames, count, saved = [], 0, 0
     prev_gray = None
