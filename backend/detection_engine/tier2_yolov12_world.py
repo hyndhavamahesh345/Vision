@@ -1,5 +1,5 @@
 from ultralytics import YOLOWorld
-from config import logger, BACKEND_DIR
+from config import logger, BACKEND_DIR, YOLO_WORLD_MODEL
 from services.inventory.builder import UNIQUE_HOUSEHOLD_OBJECTS
 
 _model = None
@@ -8,11 +8,27 @@ def get_model():
     global _model
     if _model is None:
         try:
-            model_path = BACKEND_DIR / "weights" / "yolov8m-worldv2.pt"
-            logger.info("Initializing Tier 2 (YOLO-World Medium)...")
-            _model = YOLOWorld('yolov8m-worldv2.pt')
-            _model.set_classes(UNIQUE_HOUSEHOLD_OBJECTS)
-            logger.info("Tier 2 ready.")
+            from pathlib import Path
+            base_path = Path(YOLO_WORLD_MODEL)
+            if not base_path.is_absolute():
+                base_path = BACKEND_DIR / base_path
+            grounded_path = base_path.parent / f"{base_path.stem}_grounded.pt"
+
+            if grounded_path.exists():
+                logger.info(f"Initializing Tier 2 with pre-grounded model: {grounded_path.name}...")
+                _model = YOLOWorld(str(grounded_path))
+                logger.info("Tier 2 ready (Pre-grounded loaded).")
+            else:
+                logger.info(f"Initializing Tier 2 (YOLO-World: {YOLO_WORLD_MODEL})...")
+                _model = YOLOWorld(YOLO_WORLD_MODEL)
+                logger.info("Grounding Tier 2 with unique household objects...")
+                # Exclude basic COCO classes that Tier 1 handles perfectly
+                coco_classes = {"toilet", "sink", "bed", "couch", "sofa", "chair", "tv", "microwave", "oven", "refrigerator", "bottle", "cup", "clock", "vase", "dining table", "potted plant"}
+                tier2_classes = [c for c in UNIQUE_HOUSEHOLD_OBJECTS if c not in coco_classes]
+                _model.set_classes(tier2_classes)
+                logger.info(f"Saving pre-grounded model to {grounded_path.name}...")
+                _model.save(str(grounded_path))
+                logger.info("Tier 2 ready (Grounded and cached).")
         except Exception as e:
             logger.error(f"Failed to load Tier 2: {e}")
     return _model
@@ -22,7 +38,7 @@ def analyze_frame(frame_path: str, job_id: str = None, frame_idx: int = None):
     if not model:
         return []
     
-    res = model.predict(frame_path, verbose=False, conf=0.05, iou=0.60, agnostic_nms=False, half=True)[0]
+    res = model.predict(frame_path, verbose=False, conf=0.01, iou=0.60, agnostic_nms=False, half=False)[0]
     detections = []
     
     if res.boxes is not None and len(res.boxes) > 0:
@@ -41,3 +57,4 @@ def analyze_frame(frame_path: str, job_id: str = None, frame_idx: int = None):
             })
             
     return detections
+

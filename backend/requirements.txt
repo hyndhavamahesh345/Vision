@@ -29,7 +29,7 @@ timm>=0.9.0
 # Infrastructure & Production Queue
 celery==5.3.6
 redis==5.0.1
-sqlalchemy==2.0.25
-psycopg2-binary==2.9.9
+sqlalchemy>=2.0.25
+psycopg2-binary>=2.9.9
 minio==7.2.4
 lapx>=0.5.5

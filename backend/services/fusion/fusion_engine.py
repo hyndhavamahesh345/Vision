@@ -36,15 +36,10 @@ def run_hybrid_pipeline(job_id: str, video_path: str, frames: List[str]) -> Tupl
 
     # If the highly accurate YOLO-World household model is available, use ONLY it to prevent base model noise
     if yolo_household:
-        from services.detection.florence import generate_dynamic_vocabulary
         from services.inventory.builder import HOUSEHOLD_OBJECTS
         
-        # 1. Ask Florence-2 to analyze the first frame and generate custom vocabulary
-        logger.info("[Fusion] Requesting dynamic vocabulary from Florence-2 for the first frame...")
-        dynamic_words = generate_dynamic_vocabulary(filtered_frames[0])
-        
-        # 2. Combine our standard household objects with the dynamically discovered ones
-        combined_classes = list(set(HOUSEHOLD_OBJECTS + ["side profile air conditioner", "furniture"] + dynamic_words))
+        # Combine our standard household objects
+        combined_classes = list(set(HOUSEHOLD_OBJECTS + ["side profile air conditioner", "furniture"]))
         
         # 3. Inject the combined vocabulary into YOLO-World's brain
         logger.info("[Fusion] Updating YOLO-World vocabulary with %d total classes", len(combined_classes))
@@ -52,7 +47,7 @@ def run_hybrid_pipeline(job_id: str, video_path: str, frames: List[str]) -> Tupl
         
         # 4. Run the high-speed YOLO-World detector on all frames
         tracked_sequence = run_household_yolo(yolo_household, filtered_frames, job_id=job_id)
-        sub = "florence2 + yolov8x-worldv2"
+        sub = "yolov8x-worldv2"
     else:
         # Fallback to base yolo
         tracked_sequence = run_bytetrack(yolo, filtered_frames, job_id=job_id)

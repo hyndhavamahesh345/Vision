@@ -1,13 +1,19 @@
 import uuid
 import os
 from pathlib import Path
-from fastapi import APIRouter, File, UploadFile, HTTPException, Depends
+from fastapi import APIRouter, File, UploadFile, HTTPException, Depends, BackgroundTasks
 from sqlalchemy.orm import Session
 
 from config import logger, UPLOAD_DIR
 from db.postgres import get_db, Job, Inventory, init_db
 from storage.minio import init_buckets, upload_video
-from worker.tasks import process_video_task, process_frames_task
+from worker.redis import USE_EAGER_CELERY
+from worker.tasks import (
+    process_video_task,
+    process_frames_task,
+    process_video_sync,
+    process_frames_sync
+)
 from typing import List
 from fastapi import Form
 
@@ -19,7 +25,10 @@ def startup_event():
     init_buckets()
 
 @router.post("/api/upload")
-async def upload_video_endpoint(file: UploadFile = File(...), db: Session = Depends(get_db)):
+async def upload_video_endpoint(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db)
+):
     if not file.filename:
         raise HTTPException(status_code=400, detail="No file provided")
     allowed = [".mp4", ".mov", ".avi", ".mkv", ".webm"]
@@ -47,10 +56,16 @@ async def upload_video_endpoint(file: UploadFile = File(...), db: Session = Depe
     db.add(new_job)
     db.commit()
 
-    # Dispatch Celery Task
-    process_video_task.delay(job_id, object_name)
+    # Dispatch Celery Task or Subprocess
+    if USE_EAGER_CELERY:
+        import subprocess
+        import sys
+        script_path = str(Path(__file__).resolve().parent.parent / "process_job.py")
+        subprocess.Popen([sys.executable, script_path, "video", job_id, object_name])
+    else:
+        process_video_task.delay(job_id, object_name)
 
-    return {"job_id": job_id, "message": "Processing started via Celery"}
+    return {"job_id": job_id, "message": "Processing started"}
 
 @router.post("/api/upload_frames")
 async def upload_frames_endpoint(
@@ -81,10 +96,16 @@ async def upload_frames_endpoint(
     db.add(new_job)
     db.commit()
 
-    # Dispatch Celery Task for processing frames directly
-    process_frames_task.delay(job_id)
+    # Dispatch Celery Task or Subprocess for processing frames directly
+    if USE_EAGER_CELERY:
+        import subprocess
+        import sys
+        script_path = str(Path(__file__).resolve().parent.parent / "process_job.py")
+        subprocess.Popen([sys.executable, script_path, "frames", job_id])
+    else:
+        process_frames_task.delay(job_id)
 
-    return {"job_id": job_id, "message": "Frame processing started via Celery"}
+    return {"job_id": job_id, "message": "Frame processing started"}
 
 @router.get("/api/status/{job_id}")
 async def get_status(job_id: str, db: Session = Depends(get_db)):

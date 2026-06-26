@@ -21,7 +21,6 @@ for d in [UPLOAD_DIR, FRAMES_DIR, OUTPUT_DIR, ANNOTATED_DIR]:
 # ── API / Model Config ────────────────────────────────────────────────────────
 USE_HYBRID         = os.getenv("USE_HYBRID", "true").lower() == "true"
 USE_GROUNDINGDINO  = False
-FLORENCE_MODEL     = os.getenv("FLORENCE_MODEL", "microsoft/Florence-2-base")
 
 FAST_MODE    = os.getenv("FAST_MODE", "false").lower() == "true"
 YOLO_WEIGHTS = os.getenv("YOLO_WEIGHTS", str(BACKEND_DIR / "weights" / "yolo11s.pt"))
@@ -29,8 +28,10 @@ YOLO_WEIGHTS = os.getenv("YOLO_WEIGHTS", str(BACKEND_DIR / "weights" / "yolo11s.
 if FAST_MODE:
     logger.info("[Config] FAST_MODE enabled — applying faster defaults")
     YOLO_CONF_OVERRIDE = float(os.getenv("YOLO_CONF_FAST", "0.28"))
+    YOLO_WORLD_MODEL = os.getenv("YOLO_WORLD_MODEL", "yolov8s-worldv2.pt")
 else:
     YOLO_CONF_OVERRIDE = None
+    YOLO_WORLD_MODEL = os.getenv("YOLO_WORLD_MODEL", "yolov8m-worldv2.pt")
 
 default_max_frames = "30"
 default_frame_quality = "60" if FAST_MODE else "80"

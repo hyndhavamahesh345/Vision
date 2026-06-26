@@ -36,7 +36,7 @@ import {
 // ── Constants ──────────────────────────────────────────────────────────────────
 
 // The standard API base URL from the Vercel environment variables
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://13.50.225.62:8001';
+const API_BASE_URL = import.meta.env.VITE_API_URL || (window.location.port === '5173' ? 'http://localhost:8001' : window.location.origin);
 
 const CATEGORIES = [
   'All',
@@ -51,6 +51,21 @@ const CATEGORIES = [
 const ROOMS = ['Living Room', 'Kitchen', 'Bedroom', 'Bathroom', 'Hallway', 'Office', 'Other']
 
 const STEPS = ['Select Source', 'Upload', 'Extract Frames', 'AI Detection', 'Ready']
+
+const CRITICAL_ITEMS = [
+  { key: 'door', label: 'Door', searchTerms: ['door'], defaultRoom: 'Living Room' },
+  { key: 'window', label: 'Window', searchTerms: ['window'], defaultRoom: 'Living Room' },
+  { key: 'light switch', label: 'Light Switch', searchTerms: ['light switch', 'switch'], defaultRoom: 'Living Room' },
+  { key: 'ceiling fan', label: 'Ceiling Fan', searchTerms: ['fan', 'ceiling fan', 'table fan', 'pedestal fan', 'wall fan', 'exhaust fan'], defaultRoom: 'Living Room' },
+  { key: 'light', label: 'Light / Lamp', searchTerms: ['light', 'lamp', 'bulb', 'chandelier', 'floor lamp', 'table lamp', 'wall light', 'ceiling light'], defaultRoom: 'Living Room' },
+  { key: 'tv', label: 'TV / Monitor', searchTerms: ['tv', 'television', 'monitor'], defaultRoom: 'Living Room' },
+  { key: 'geyser', label: 'Geyser / Water Heater', searchTerms: ['geyser', 'water heater', 'bathroom water heater', 'wall-mounted water heater', 'water boiler'], defaultRoom: 'Bathroom' },
+  { key: 'sofa', label: 'Sofa / Couch', searchTerms: ['sofa', 'couch', 'l-shaped sofa'], defaultRoom: 'Living Room' },
+  { key: 'chair', label: 'Chair', searchTerms: ['chair', 'armchair', 'office chair', 'dining chair', 'gaming chair'], defaultRoom: 'Living Room' },
+  { key: 'table', label: 'Table / Desk', searchTerms: ['table', 'dining table', 'coffee table', 'desk'], defaultRoom: 'Living Room' },
+  { key: 'bed', label: 'Bed', searchTerms: ['bed', 'bunk bed', 'diwan cot', 'divan cot'], defaultRoom: 'Bedroom' }
+]
+
 
 // ── Pure Helpers ───────────────────────────────────────────────────────────────
 
@@ -145,9 +160,9 @@ function Header({ onReset }) {
           </span>
         </button>
         <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-500">
-          <button className="hover:text-slate-900 transition-colors">How it works</button>
-          <button className="hover:text-slate-900 transition-colors">Pricing</button>
-          <button className="hover:text-slate-900 transition-colors">Docs</button>
+          <button onClick={() => alert("How it works documentation coming soon!")} className="hover:text-slate-900 transition-colors">How it works</button>
+          <button onClick={() => alert("Pricing details coming soon!")} className="hover:text-slate-900 transition-colors">Pricing</button>
+          <button onClick={() => alert("Developer docs coming soon!")} className="hover:text-slate-900 transition-colors">Docs</button>
         </nav>
         <div className="flex items-center gap-4">
           <button className="text-sm font-bold text-slate-900 border border-slate-200 rounded-full px-5 py-2 hover:bg-slate-50 transition-colors flex items-center gap-2">
@@ -1059,6 +1074,17 @@ export default function App() {
     })
   }, [inventory, searchQuery, selectedCategory])
 
+  const missingCriticalItems = useMemo(() => {
+    if (!inventory) return []
+    const detectedNames = inventory.inventory.map(item => item.name.toLowerCase())
+    return CRITICAL_ITEMS.filter(critical => {
+      return !critical.searchTerms.some(term => 
+        detectedNames.some(detectedName => detectedName.includes(term))
+      )
+    })
+  }, [inventory])
+
+
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
@@ -1201,6 +1227,18 @@ export default function App() {
         {/* ── RESULTS DASHBOARD ────────────────────────────────────────── */}
         {inventory && (
           <div className="space-y-8 animate-fade-in">
+
+            {/* Missing Critical Items Banner */}
+            {missingCriticalItems.length > 0 && (
+              <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/25 flex items-start gap-3 text-xs leading-relaxed text-slate-800 animate-fade-in">
+                <AlertCircle className="w-5 h-5 text-orange-500 shrink-0 mt-0.5" />
+                <div>
+                  <span className="font-extrabold text-slate-900 block mb-0.5">Missing Items Alert</span>
+                  Some standard household items (like {missingCriticalItems.slice(0, 3).map(x => x.label).join(', ')}{missingCriticalItems.length > 3 ? '...' : ''}) were not detected in the video. You can review and add them manually using the panel below.
+                </div>
+              </div>
+            )}
+
 
             {/* Report header */}
             <div className="p-6 md:p-8 rounded-3xl bg-slate-50/40 backdrop-blur-xl border border-slate-200/90 shadow-md flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -1352,10 +1390,24 @@ export default function App() {
 
                   {filteredInventory.length === 0 ? (
                     <div className="p-12 text-center">
-                      <Info className="w-7 h-7 text-slate-700 mx-auto mb-3" />
-                      <p className="text-xs text-slate-400 font-medium">No items match the current filters.</p>
+                      <AlertCircle className="w-7 h-7 text-slate-400 mx-auto mb-3 animate-pulse" />
+                      <p className="text-xs text-slate-500 font-bold mb-3">
+                        {searchQuery ? `"${searchQuery}" is not detected in this walkthrough video.` : 'No items match the current filters.'}
+                      </p>
+                      {searchQuery && (
+                        <button
+                          onClick={() => {
+                            addItem({ name: searchQuery, quantity: 1, room: 'Living Room' });
+                            setSearchQuery('');
+                          }}
+                          className="px-4 py-2 rounded-xl bg-orange-500 text-slate-900 hover:bg-orange-500 font-extrabold text-xs shadow-sm transition-all active:scale-95"
+                        >
+                          + Add "{searchQuery}" to Inventory
+                        </button>
+                      )}
                     </div>
                   ) : (
+
                     <div id="inventory-list" className="divide-y divide-slate-900/30">
                       {filteredInventory.map((item) => {
                         const trueIdx = inventory.inventory.findIndex(x => x.name === item.name)
@@ -1371,7 +1423,37 @@ export default function App() {
                     </div>
                   )}
                 </div>
+
+                {/* Missing / Undetected Critical Items Panel */}
+                {missingCriticalItems.length > 0 && (
+                  <div className="mt-8 pt-6 border-t border-slate-200">
+                    <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2 mb-3">
+                      <AlertCircle className="w-4 h-4 text-orange-500" />
+                      Missing / Undetected Critical Items
+                    </h3>
+                    <p className="text-xs text-slate-400 mb-4 leading-relaxed">
+                      The AI scan did not identify the following standard household items. You can review and add them directly to your inventory if they exist in the scanned space.
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {missingCriticalItems.map(item => (
+                        <div key={item.key} className="flex items-center justify-between p-3 rounded-xl bg-orange-50/10 border border-orange-500/10 hover:border-orange-500/25 transition-all">
+                          <div className="min-w-0">
+                            <p className="text-xs font-bold text-slate-800 truncate">{item.label}</p>
+                            <span className="text-[9px] text-slate-400 font-semibold block uppercase">Not detected</span>
+                          </div>
+                          <button
+                            onClick={() => addItem({ name: item.key, quantity: 1, room: item.defaultRoom })}
+                            className="px-3 py-1.5 rounded-lg bg-orange-500 text-slate-900 hover:bg-orange-500 font-extrabold text-[10px] shadow-sm transition-all active:scale-95 shrink-0"
+                          >
+                            + Add
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
+
 
               {/* Sidebar — 1/3 width */}
               <div className="space-y-5">

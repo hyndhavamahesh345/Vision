@@ -2,85 +2,87 @@ from typing import List, Dict, Any
 from services.inventory.builder import normalize_object_name
 
 CLASS_THRESHOLDS = {
-    "air conditioner": 0.20,
-    "ac": 0.20,
+    "air conditioner": 0.12,
+    "ac": 0.12,
     "ceiling fan": 0.05,
-    "table fan": 0.10,
-    "pedestal fan": 0.10,
+    "table fan": 0.05,
+    "pedestal fan": 0.05,
     "wall fan": 0.05,
     "fan": 0.05,
-    "chair": 0.35,
-    "office chair": 0.40,
-    "dining chair": 0.40,
-    "gaming chair": 0.45,
-    "bar stool": 0.45,
+    "chair": 0.12,
+    "office chair": 0.12,
+    "dining chair": 0.12,
+    "gaming chair": 0.12,
+    "bar stool": 0.12,
     "sofa": 0.35,
-    "l-shaped sofa": 0.40,
-    "table": 0.35,
-    "light": 0.15,
-    "ceiling light": 0.15,
-    "wall light": 0.15,
-    "lamp": 0.25,
-    "floor lamp": 0.30,
-    "table lamp": 0.30,
-    "chandelier": 0.15,
-    "television": 0.50,
-    "tv": 0.50,
-    "monitor": 0.50,
-    "cupboard": 0.25,
-    "cabinet": 0.25,
-    "refrigerator": 0.60,
-    "furniture": 0.25,
-    "bed": 0.45,
-    "bunk bed": 0.50,
-    "microwave": 0.50,
-    "oven": 0.50,
-    "washing machine": 0.40,
-    "picture frame": 0.60,
-    "painting": 0.60,
-    "window": 0.40,
-    "door": 0.25,
-    "light switch": 0.15,
-    "bathtub": 0.40,
-    "sink": 0.40,
-    "shower": 0.40,
-    "toilet": 0.40,
+    "l-shaped sofa": 0.35,
+    "desk": 0.35,
+    "chair": 0.35,
+    "table": 0.12,
+    "light": 0.10,
+    "ceiling light": 0.10,
+    "wall light": 0.10,
+    "lamp": 0.12,
+    "floor lamp": 0.15,
+    "table lamp": 0.15,
+    "chandelier": 0.10,
+    "television": 0.15,
+    "tv": 0.15,
+    "monitor": 0.15,
+    "cupboard": 0.12,
+    "cabinet": 0.12,
+    "refrigerator": 0.20,
+    "furniture": 0.12,
+    "bed": 0.15,
+    "bunk bed": 0.15,
+    "microwave": 0.15,
+    "oven": 0.15,
+    "washing machine": 0.15,
+    "picture frame": 0.25,
+    "painting": 0.25,
+    "window": 0.12,
+    "door": 0.10,
+    "light switch": 0.08,
+    "bathtub": 0.25,
+    "sink": 0.10,
+    "shower": 0.10,
+    "toilet": 0.10,
     "geyser": 0.01,
     "water heater": 0.01,
-    "bench": 0.50,
-    "rug": 0.85,
-    "carpet": 0.85,
-    "mat": 0.35,
-    "bulb": 0.15,
-    "light bulb": 0.15,
-    "exhaust fan": 0.15,
-    "diwan cot": 0.45,
-    "divan cot": 0.45,
-    "dishwasher": 0.40,
-    "dryer": 0.40,
-    "stove": 0.40,
-    "plant": 0.30,
-    "bottle": 0.30,
-    "mop": 0.35,
-    "broom": 0.35,
-    "bucket": 0.40,
-    "gate": 0.30,
-    "tv unit": 0.30,
-    "dressing table": 0.30,
-    "curtain": 0.25,
-    "blinds": 0.25,
-    "water purifier": 0.25,
-    "gas cylinder": 0.35,
-    "mixer grinder": 0.25,
-    "trash can": 0.25,
-    "balcony railing": 0.20,
-    "swing": 0.25,
-    "inverter": 0.30,
-    "chimney": 0.20,
-    "unknown object": 0.50
+    "bench": 0.15,
+    "rug": 0.25,
+    "carpet": 0.25,
+    "mat": 0.12,
+    "bulb": 0.10,
+    "light bulb": 0.10,
+    "exhaust fan": 0.08,
+    "diwan cot": 0.15,
+    "divan cot": 0.15,
+    "dishwasher": 0.15,
+    "dryer": 0.15,
+    "stove": 0.15,
+    "plant": 0.12,
+    "bottle": 0.12,
+    "mop": 0.12,
+    "broom": 0.12,
+    "bucket": 0.12,
+    "gate": 0.12,
+    "tv unit": 0.12,
+    "dressing table": 0.12,
+    "curtain": 0.12,
+    "blinds": 0.12,
+    "water purifier": 0.12,
+    "gas cylinder": 0.12,
+    "mixer grinder": 0.12,
+    "trash can": 0.12,
+    "balcony railing": 0.10,
+    "swing": 0.12,
+    "inverter": 0.12,
+    "chimney": 0.10,
+    "unknown object": 0.25
 }
-DEFAULT_THRESH = 0.35
-UNCERTAIN_THRESH = 0.25
+DEFAULT_THRESH = 0.12
+UNCERTAIN_THRESH = 0.08
 MIN_TEMPORAL_FRAMES = 1
 
 def compute_iou(box1, box2):
@@ -155,7 +157,7 @@ def aggregate_detections(all_frame_detections: List[Dict[str, Any]]) -> Dict[str
                 if conf >= target_thresh or conf >= UNCERTAIN_THRESH:
                     # Tiered Priority Boosting to force correct NMS hierarchy
                     # Tier 1 (Highest Priority) - Structural/Large fixtures
-                    if canonical in {"chandelier", "ceiling fan", "fan", "geyser", "water heater", "l-shaped sofa", "bunk bed", "diwan cot", "divan cot", "exhaust fan", "wall fan", "light", "wall light", "ceiling light", "lamp"}:
+                    if canonical in {"chandelier", "ceiling fan", "fan", "geyser", "water heater", "bunk bed", "diwan cot", "divan cot", "exhaust fan", "wall fan", "light", "wall light", "ceiling light", "lamp"}:
                         conf += 2.0
                     # Tier 2 (Medium Priority) - Specific furniture items
                     elif canonical in {"office chair", "gaming chair", "dining chair", "bar stool", "floor lamp", "wall light", "ceiling light", "table fan", "pedestal fan", "table lamp"}:
@@ -181,8 +183,8 @@ def aggregate_detections(all_frame_detections: List[Dict[str, Any]]) -> Dict[str
             detections = detections[valid_mask]
             
             if len(detections) > 0:
-                # Apply NMS to suppress overlapping boxes. Set class_agnostic=False to prevent suppressing different objects (e.g. fan vs light).
-                detections = detections.with_nms(threshold=0.50, class_agnostic=False)
+                # Apply NMS to suppress overlapping boxes across tiers (Cross-Tier NMS)
+                detections = detections.with_nms(threshold=0.50, class_agnostic=True)
                 
                 # Restore original confidences by removing the boost
                 detections.confidence = detections.confidence % 1.0
@@ -254,7 +256,8 @@ def aggregate_detections(all_frame_detections: List[Dict[str, Any]]) -> Dict[str
     # Items that are almost always singular per room and prone to track fragmentation
     SINGLE_INSTANCE_ITEMS = {
         "geyser", "water heater", "refrigerator", "fridge", "television", "tv",
-        "washing machine", "stove", "microwave", "oven", "bathtub", "shower"
+        "washing machine", "stove", "microwave", "oven", "bathtub", "shower",
+        "pedestal fan", "ceiling fan", "fan", "wall fan", "bed", "sink", "toilet"
     }
     
     if USE_OBJECT_TRACKING:
@@ -263,13 +266,18 @@ def aggregate_detections(all_frame_detections: List[Dict[str, Any]]) -> Dict[str
             s_count = scene_max_inventory.get(label, 0)
             
             if label in SINGLE_INSTANCE_ITEMS:
-                # Force scene max to prevent tracker fragmentation on large appliances
-                primary_inventory[label] = s_count
+                # Cap to 1 to completely prevent duplicates in standard rooms
+                primary_inventory[label] = 1 if (s_count > 0 or t_count > 0) else 0
             else:
                 # Tracking can drop tracks on sparse frames. SceneMax is a guaranteed minimum bound.
                 primary_inventory[label] = max(t_count, s_count)
     else:
-        primary_inventory = scene_max_inventory
+        primary_inventory = {}
+        for label, s_count in scene_max_inventory.items():
+            if label in SINGLE_INSTANCE_ITEMS:
+                primary_inventory[label] = 1 if s_count > 0 else 0
+            else:
+                primary_inventory[label] = s_count
     # --- SEMANTIC DEDUPLICATION ---
     # Removes generic objects if a more specific version was found in the same room
     dedup_rules = {
@@ -301,8 +309,8 @@ def aggregate_detections(all_frame_detections: List[Dict[str, Any]]) -> Dict[str
         "wall light": ["lamp", "ceiling light", "light"],
         "ceiling light": ["light", "lamp"],
         "lamp": ["light"],
-        "geyser": ["water heater", "bathroom water heater", "water boiler"],
-        "water heater": ["geyser", "bathroom water heater", "water boiler"],
+        "geyser": ["water heater", "bathroom water heater", "water boiler", "water tank", "hot water dispenser", "water cylinder"],
+        "water heater": ["geyser", "bathroom water heater", "water boiler", "water tank", "hot water dispenser", "water cylinder"],
         "curtain": ["blinds"],
         "trash can": ["dustbin", "bin"],
         "dustbin": ["trash can", "bin"],

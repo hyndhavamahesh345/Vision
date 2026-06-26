@@ -30,6 +30,10 @@ backend/output/
 backend/dataset/
 backend/runs/
 backend/static/previews/
+backend/static/annotated/
+backend/temp/
+backend/visionvault.db
+brain/
 
 # ── Frontend build output ─────────────────────────────────────────────────────
 frontend/dist/

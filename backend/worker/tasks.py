@@ -4,7 +4,7 @@ from pathlib import Path
 from celery import shared_task
 from sqlalchemy.orm import Session
 
-from config import logger, FRAMES_DIR, USE_HYBRID, OUTPUT_DIR
+from config import logger, FRAMES_DIR, USE_HYBRID, OUTPUT_DIR, FAST_MODE
 from worker.redis import celery_app
 from storage.minio import download_video
 from db.postgres import SessionLocal, Job, Inventory, Detection
@@ -24,9 +24,8 @@ def update_job_status(db: Session, job_id: str, status: str, pipeline: str = Non
         if frames_analyzed: job.frames_analyzed = frames_analyzed
         db.commit()
 
-@celery_app.task(bind=True)
-def process_video_task(self, job_id: str, object_name: str):
-    logger.info("[%s] Starting Celery task for video: %s", job_id, object_name)
+def process_video_sync(job_id: str, object_name: str):
+    logger.info("[%s] Starting process_video for: %s", job_id, object_name)
     db = SessionLocal()
     
     # Download video from MinIO to local temp space
@@ -53,7 +52,7 @@ def process_video_task(self, job_id: str, object_name: str):
             # Route frame through YOLO-World
             frame_detections = route_frame(frame_path, "yolo-world", job_id, idx)
             all_detections.extend(frame_detections)
-            if idx % 5 == 0:  # Update DB periodically to avoid hammering it
+            if FAST_MODE or len(frames) <= 10 or idx % 5 == 0:
                 update_job_status(db, job_id, "analyzing", frames_analyzed=idx+1)
 
         update_job_status(db, job_id, "merging", pipeline="yolo-world", frames_analyzed=len(frames))
@@ -87,8 +86,11 @@ def process_video_task(self, job_id: str, object_name: str):
             Path(local_video_path).unlink()
 
 @celery_app.task(bind=True)
-def process_frames_task(self, job_id: str):
-    logger.info("[%s] Starting Celery task for pre-extracted frames", job_id)
+def process_video_task(self, job_id: str, object_name: str):
+    process_video_sync(job_id, object_name)
+
+def process_frames_sync(job_id: str):
+    logger.info("[%s] Starting process_frames for pre-extracted frames", job_id)
     db = SessionLocal()
     
     try:
@@ -111,7 +113,7 @@ def process_frames_task(self, job_id: str):
             # Route frame through YOLO-World
             frame_detections = route_frame(str(frame_path), "yolo-world", job_id, idx)
             all_detections.extend(frame_detections)
-            if idx % 5 == 0:  # Update DB periodically to avoid hammering it
+            if FAST_MODE or len(frames) <= 10 or idx % 5 == 0:
                 update_job_status(db, job_id, "analyzing", frames_analyzed=idx+1)
 
         update_job_status(db, job_id, "merging", pipeline="yolo-world", frames_analyzed=len(frames))
@@ -140,3 +142,8 @@ def process_frames_task(self, job_id: str):
         update_job_status(db, job_id, "error", error=str(e))
     finally:
         db.close()
+
+@celery_app.task(bind=True)
+def process_frames_task(self, job_id: str):
+    process_frames_sync(job_id)
+

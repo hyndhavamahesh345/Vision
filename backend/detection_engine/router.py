@@ -1,11 +1,22 @@
 from config import logger
 from detection_engine import tier2_yolov12_world as t2
+from detection_engine import tier1_yolo26 as t1
 
 def route_frame(frame_path: str, strategy: str = "yolo-world", job_id: str = None, frame_idx: int = None):
     """
     Routes a frame through the detection tiers.
     """
-    detections = t2.analyze_frame(frame_path, job_id=job_id, frame_idx=frame_idx)
+    detections = []
+    
+    # Run Tier 1 (Standard YOLO)
+    t1_detections = t1.analyze_frame(frame_path, job_id=job_id, frame_idx=frame_idx)
+    if t1_detections:
+        detections.extend(t1_detections)
+        
+    # Run Tier 2 (YOLO-World)
+    t2_detections = t2.analyze_frame(frame_path, job_id=job_id, frame_idx=frame_idx)
+    if t2_detections:
+        detections.extend(t2_detections)
         
     if job_id is not None and frame_idx is not None:
         from config import ANNOTATED_DIR
@@ -18,60 +29,71 @@ def route_frame(frame_path: str, strategy: str = "yolo-world", job_id: str = Non
         try:
             img = cv2.imread(frame_path)
             
-            # Create supervision BoxAnnotator and LabelAnnotator
-            box_annotator = sv.BoxAnnotator()
-            label_annotator = sv.LabelAnnotator()
+            box_annotator = sv.BoxAnnotator(thickness=3)
+            label_annotator = sv.LabelAnnotator(text_scale=1.2, text_thickness=2, text_padding=10)
             
-            # We want to use different colors for different tiers, 
-            # so we might need multiple sv.Detections objects or a custom color map,
-            # but supervision's BoxAnnotator is easier if we just pass a color palette 
-            # or annotate tier by tier. Let's annotate tier by tier for colors.
+            boxes = []
+            confidences = []
+            valid_detections = []
             
-            for tier in [1, 2, 3]:
-                tier_detections = [d for d in detections if d["tier"] == tier]
-                if not tier_detections:
-                    continue
+            for d in detections:
+                canonical = normalize_object_name(d["label"])
+                target_thresh = CLASS_THRESHOLDS.get(canonical, DEFAULT_THRESH)
                 
-                boxes = []
-                confidences = []
-                class_ids = []
-                labels_text = []
-                
-                for d in tier_detections:
-                    canonical = normalize_object_name(d["label"])
-                    target_thresh = CLASS_THRESHOLDS.get(canonical, DEFAULT_THRESH)
+                if d["confidence"] >= target_thresh:
+                    boxes.append(d["bbox"])
                     
-                    if d["confidence"] >= target_thresh:
-                        boxes.append(d["bbox"])
-                        confidences.append(d["confidence"])
+                    # Temporarily boost Tier 1 confidence so it always wins NMS against Tier 2
+                    conf = d["confidence"]
+                    if d["tier"] == 1:
+                        conf += 2.0
+                    confidences.append(conf)
+                    
+                    valid_detections.append(d)
+                    
+            if boxes:
+                original_indices = np.arange(len(boxes))
+                sv_dets = sv.Detections(
+                    xyxy=np.array(boxes),
+                    confidence=np.array(confidences),
+                    class_id=original_indices
+                )
+                
+                # Apply cross-tier NMS to delete overlapping false positives
+                sv_dets = sv_dets.with_nms(threshold=0.50, class_agnostic=True)
+                kept_indices = sv_dets.class_id.tolist()
+                
+                for tier in [1, 2]:
+                    tier_boxes = []
+                    tier_labels = []
+                    
+                    for idx in kept_indices:
+                        d = valid_detections[idx]
+                        if d["tier"] == tier:
+                            tier_boxes.append(d["bbox"])
+                            tier_labels.append(f'{d["label"]} {d["confidence"]:.2f}')
+                            
+                    if not tier_boxes:
+                        continue
                         
-                        try:
-                            c_id = UNIQUE_HOUSEHOLD_OBJECTS.index(canonical)
-                        except ValueError:
-                            c_id = -1
-                        class_ids.append(c_id)
-                        labels_text.append(f'{d["label"]} {d["confidence"]:.2f}')
-                        
-                if boxes:
-                    sv_dets = sv.Detections(
-                        xyxy=np.array(boxes),
-                        confidence=np.array(confidences),
-                        class_id=np.array(class_ids)
+                    tier_sv_dets = sv.Detections(
+                        xyxy=np.array(tier_boxes),
+                        confidence=np.ones(len(tier_boxes)),
+                        class_id=np.zeros(len(tier_boxes))
                     )
                     
-                    # Choose color based on tier
                     if tier == 1:
                         color = sv.Color(0, 255, 0)
                     elif tier == 2:
                         color = sv.Color(255, 0, 0)
                     else:
-                        color = sv.Color(0, 0, 255)
+                        color = sv.Color(255, 165, 0) # Orange for Tier 3
                         
                     box_annotator.color = color
                     label_annotator.color = color
                     
-                    img = box_annotator.annotate(scene=img, detections=sv_dets)
-                    img = label_annotator.annotate(scene=img, detections=sv_dets, labels=labels_text)
+                    img = box_annotator.annotate(scene=img, detections=tier_sv_dets)
+                    img = label_annotator.annotate(scene=img, detections=tier_sv_dets, labels=tier_labels)
                     
             cv2.imwrite(str(ANNOTATED_DIR / f"{job_id}_{frame_idx}.jpg"), img)
         except Exception as e:
