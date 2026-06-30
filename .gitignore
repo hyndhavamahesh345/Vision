@@ -54,3 +54,4 @@ backend/test_patch.py
 *.db
 backend/local_storage/
 dataset/
+Video/
