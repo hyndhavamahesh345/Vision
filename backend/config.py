@@ -33,7 +33,7 @@ else:
     YOLO_CONF_OVERRIDE = None
     YOLO_WORLD_MODEL = os.getenv("YOLO_WORLD_MODEL", "yolov8m-worldv2.pt")
 
-default_max_frames = "30"
+default_max_frames = "15"
 default_frame_quality = "60" if FAST_MODE else "80"
 
 MAX_FRAMES                = int(os.getenv("MAX_FRAMES", default_max_frames))
@@ -52,6 +52,6 @@ TEMPORAL_MIN_AVG_CONF = float(os.getenv("TEMPORAL_MIN_AVG_CONF", "0.05"))
 YOLO_INPUT_TARGET_WIDTH = int(os.getenv("YOLO_INPUT_TARGET_WIDTH", "640"))
 YOLO_INFER_IMGSZ = int(os.getenv("YOLO_INFER_IMGSZ", "640"))
 
-USE_OBJECT_TRACKING = True
+USE_OBJECT_TRACKING = False
 USE_SCENE_MAX_FALLBACK = True
 NMS_THRESHOLD = 0.35

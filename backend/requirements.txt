@@ -12,8 +12,7 @@ numpy
 pillow
 supervision>=0.20.0
 
-# YOLO object detection
-ultralytics>=8.3.0
+# GroundingDINO object detection (via Transformers)
 
 # OpenCLIP secondary image classifier
 --extra-index-url https://download.pytorch.org/whl/cu121
@@ -32,4 +31,7 @@ redis==5.0.1
 sqlalchemy>=2.0.25
 psycopg2-binary>=2.9.9
 minio==7.2.4
-lapx>=0.5.5
+
+
+einops
+timm

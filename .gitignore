@@ -48,3 +48,9 @@ Thumbs.db
 # ── Test files ────────────────────────────────────────────────────────────────
 backend/test_pipeline.py
 backend/test_gemini.py
+backend/test_patch.py
+
+# ── Local DB and Video Storage ────────────────────────────────────────────────
+*.db
+backend/local_storage/
+dataset/

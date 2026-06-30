@@ -822,7 +822,7 @@ export default function App() {
 
   // ── Upload & polling ───────────────────────────────────────────────────────
 
-  const extractFramesLocal = async (videoFile, maxFrames = 30) => {
+  const extractFramesLocal = async (videoFile, maxFrames = 120) => {
     return new Promise((resolve, reject) => {
       const videoUrl = URL.createObjectURL(videoFile);
       const video = document.createElement('video');
@@ -884,7 +884,7 @@ export default function App() {
     setStatusMsg('Extracting frames locally (this may take a few seconds)...')
 
     try {
-      const frames = await extractFramesLocal(file, 30)
+      const frames = await extractFramesLocal(file, 120)
       
       setStatusMsg('Uploading compressed frames...')
       const form = new FormData()

@@ -3,7 +3,7 @@ from sqlalchemy import create_engine, Column, String, Integer, Float, DateTime, 
 from sqlalchemy.orm import declarative_base, sessionmaker
 from datetime import datetime
 
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://admin:password@localhost:5432/visionvault")
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///app.db")
 
 connect_args = {}
 if DATABASE_URL.startswith("sqlite"):

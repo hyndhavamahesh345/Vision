@@ -50,7 +50,7 @@ def process_video_sync(job_id: str, object_name: str):
         all_detections = []
         for idx, frame_path in enumerate(frames):
             # Route frame through YOLO-World
-            frame_detections = route_frame(frame_path, "yolo-world", job_id, idx)
+            frame_detections = route_frame(frame_path, "custom-yolo", job_id, idx)
             all_detections.extend(frame_detections)
             if FAST_MODE or len(frames) <= 10 or idx % 5 == 0:
                 update_job_status(db, job_id, "analyzing", frames_analyzed=idx+1)
@@ -111,7 +111,7 @@ def process_frames_sync(job_id: str):
         all_detections = []
         for idx, frame_path in enumerate(frames):
             # Route frame through YOLO-World
-            frame_detections = route_frame(str(frame_path), "yolo-world", job_id, idx)
+            frame_detections = route_frame(str(frame_path), "custom-yolo", job_id, idx)
             all_detections.extend(frame_detections)
             if FAST_MODE or len(frames) <= 10 or idx % 5 == 0:
                 update_job_status(db, job_id, "analyzing", frames_analyzed=idx+1)
